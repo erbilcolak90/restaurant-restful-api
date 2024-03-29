@@ -1,4 +1,4 @@
-package com.example.restfulrestaurant.entity
+package com.example.restaurantrestful.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.MappedSuperclass
