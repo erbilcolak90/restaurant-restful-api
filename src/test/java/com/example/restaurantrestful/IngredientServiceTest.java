@@ -1,7 +1,9 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.dto.inputs.ingredient.GetAllIngredientsInput;
 import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.enums.IngredientTypeEnums;
+import com.example.restaurantrestful.enums.SortBy;
 import com.example.restaurantrestful.enums.UnitTypeEnums;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.IngredientRepository;
@@ -14,7 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -90,6 +95,34 @@ class IngredientServiceTest {
         CustomException resultException = assertThrows(CustomException.class, () -> ingredientServiceMock.getIngredientByName(test_name));
 
         assertEquals("Ingredient name not found", resultException.getMessage());
+    }
+
+    @DisplayName("getAllIngredients should return page list ingredient with GetAllIngredientsInput")
+    @Test
+    void testGetAllIngredients_success() {
+        GetAllIngredientsInput getAllIngredientsInput = new GetAllIngredientsInput(1, 1, "id", SortBy.ASC);
+        List<Ingredient> ingredientList = new ArrayList<>();
+        Pageable pageable = PageRequest.of(1, 10, Sort.Direction.ASC, "id");
+        ingredientList.add(ingredientMock);
+        Page<Ingredient> ingredientPage = new PageImpl<>(ingredientList, pageable, ingredientList.size());
+
+        when(ingredientRepositoryMock.findAll(any(Pageable.class))).thenReturn(ingredientPage);
+
+        Page<Ingredient> result = ingredientServiceMock.getAllIngredients(getAllIngredientsInput);
+        assertNotNull(result);
+    }
+
+    @DisplayName("getAllIngredients should return empty page when no ingredients found")
+    @Test
+    void testGetAllIngredients_noIngredientsFound() {
+        GetAllIngredientsInput getAllIngredientsInput = new GetAllIngredientsInput(1, 1, "id", SortBy.ASC);
+
+        when(ingredientRepositoryMock.findAll(any(Pageable.class))).thenReturn(Page.empty());
+
+        Page<Ingredient> result = ingredientServiceMock.getAllIngredients(getAllIngredientsInput);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     @AfterEach
