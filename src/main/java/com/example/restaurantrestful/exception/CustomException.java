@@ -10,4 +10,7 @@ public class CustomException extends RuntimeException{
         return new CustomException("Ingredient not found");
     }
 
+    public static CustomException ingredientNameNotFound() {
+        return new CustomException("Ingredient name not found");
+    }
 }
