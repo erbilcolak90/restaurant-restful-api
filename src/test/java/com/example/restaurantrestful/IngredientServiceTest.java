@@ -2,6 +2,7 @@ package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.dto.inputs.ingredient.CreateIngredientInput;
 import com.example.restaurantrestful.dto.inputs.ingredient.GetAllIngredientsInput;
+import com.example.restaurantrestful.dto.inputs.ingredient.UpdateIngredientInput;
 import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.enums.IngredientTypeEnums;
 import com.example.restaurantrestful.enums.SortBy;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -149,6 +151,49 @@ class IngredientServiceTest {
         CustomException exceptionResult = assertThrows(CustomException.class, () -> ingredientServiceMock.createIngredient(createIngredientInput));
 
         assertEquals("Ingredient name is already exist", exceptionResult.getMessage());
+    }
+
+    @DisplayName("updateIngredient should return valid ingredient for given input")
+    @Test
+    void testUpdateIngredient_success(){
+        UpdateIngredientInput updateIngredientInput = new UpdateIngredientInput("test_id","test_name",IngredientTypeEnums.CHEESE,UnitTypeEnums.GR);
+        String name = Objects.requireNonNull(updateIngredientInput.getName()).toLowerCase();
+
+        when(ingredientRepositoryMock.findById(updateIngredientInput.getId())).thenReturn(Optional.ofNullable(ingredientMock));
+        when(ingredientRepositoryMock.findByName(name)).thenReturn(Optional.empty());
+
+        Ingredient result = ingredientServiceMock.updateIngredient(updateIngredientInput);
+
+        assertEquals(name,result.getName());
+        assertEquals(updateIngredientInput.getType(),result.getType());
+        assertEquals(updateIngredientInput.getUnit(),result.getUnit());
+    }
+
+    @DisplayName("updateIngredient should throw custom exception ingredientNotFound when id from given input is not exist on database")
+    @Test
+    void testUpdateIngredient_ingredientIsNotFound(){
+        UpdateIngredientInput updateIngredientInput = new UpdateIngredientInput("test_id","test_update_name",IngredientTypeEnums.CHEESE,UnitTypeEnums.GR);
+
+        when(ingredientRepositoryMock.findById(updateIngredientInput.getId())).thenReturn(Optional.empty());
+
+        CustomException result = assertThrows(CustomException.class,()-> ingredientServiceMock.updateIngredient(updateIngredientInput));
+
+        assertEquals("Ingredient not found",result.getMessage());
+    }
+
+    @DisplayName("updateIngredient should throw custom exception ingredientNameIsAlreadyExist when name field from given input is match with different ingredient on DB")
+    @Test
+    void testUpdateIngredient_ingredientNameIsAlreadyExist(){
+        UpdateIngredientInput updateIngredientInput = new UpdateIngredientInput("test_id","test_ingredient_name",IngredientTypeEnums.CHEESE,UnitTypeEnums.GR);
+        Ingredient secondIngredient = new Ingredient("id","test_ingredient_name",IngredientTypeEnums.BAKERY,UnitTypeEnums.KG);
+        String name = Objects.requireNonNull(updateIngredientInput.getName()).toLowerCase();
+
+        when(ingredientRepositoryMock.findById(updateIngredientInput.getId())).thenReturn(Optional.ofNullable(ingredientMock));
+        when(ingredientRepositoryMock.findByName(name)).thenReturn(Optional.of(secondIngredient));
+
+        CustomException result = assertThrows(CustomException.class,()-> ingredientServiceMock.updateIngredient(updateIngredientInput));
+
+        assertEquals("Ingredient name is already exist", result.getMessage());
     }
 
     @AfterEach

@@ -2,6 +2,7 @@ package com.example.restaurantrestful.service;
 
 import com.example.restaurantrestful.dto.inputs.ingredient.CreateIngredientInput;
 import com.example.restaurantrestful.dto.inputs.ingredient.GetAllIngredientsInput;
+import com.example.restaurantrestful.dto.inputs.ingredient.UpdateIngredientInput;
 import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.IngredientRepository;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 @Service
 public class IngredientService {
@@ -55,6 +58,26 @@ public class IngredientService {
                     ingredientRepository.save(ingredient);
                     return ingredient;
                 });
+    }
+
+    @Transactional
+    public Ingredient updateIngredient(UpdateIngredientInput updateIngredientInput) {
+        Ingredient dbIngredient = ingredientRepository.findById(updateIngredientInput.getId()).orElseThrow(CustomException::ingredientNotFound);
+
+        if (updateIngredientInput.getName() != null) {
+            ingredientRepository.findByName(updateIngredientInput.getName().toLowerCase())
+                    .ifPresent(existingIngredient -> {
+                        throw CustomException.ingredientNameIsAlreadyExist();
+                    });
+            dbIngredient.setName(updateIngredientInput.getName().toLowerCase());
+        }
+
+        dbIngredient.setType(updateIngredientInput.getType() != null ? updateIngredientInput.getType() : dbIngredient.getType());
+        dbIngredient.setUnit(updateIngredientInput.getUnit() != null ? updateIngredientInput.getUnit() : dbIngredient.getUnit());
+        dbIngredient.setUpdateDate(new Date());
+
+        ingredientRepository.save(dbIngredient);
+        return dbIngredient;
     }
 
 }
