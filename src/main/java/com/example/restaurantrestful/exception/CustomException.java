@@ -1,6 +1,6 @@
 package com.example.restaurantrestful.exception;
 
-public class CustomException extends RuntimeException{
+public class CustomException extends RuntimeException {
 
     public CustomException(String message) {
         super(message);
@@ -12,5 +12,9 @@ public class CustomException extends RuntimeException{
 
     public static CustomException ingredientNameNotFound() {
         return new CustomException("Ingredient name not found");
+    }
+
+    public static CustomException ingredientNameIsAlreadyExist() {
+        return new CustomException("Ingredient name is already exist");
     }
 }

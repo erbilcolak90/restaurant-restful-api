@@ -1,5 +1,6 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.dto.inputs.ingredient.CreateIngredientInput;
 import com.example.restaurantrestful.dto.inputs.ingredient.GetAllIngredientsInput;
 import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.enums.IngredientTypeEnums;
@@ -123,6 +124,31 @@ class IngredientServiceTest {
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    @DisplayName("createIngredient should return valid ingredient with input createIngredientInput")
+    @Test
+    void testCreateIngredient_success() {
+        CreateIngredientInput createIngredientInput = new CreateIngredientInput("test_name", IngredientTypeEnums.BAKERY, UnitTypeEnums.KG);
+
+        when(ingredientRepositoryMock.findByName(createIngredientInput.getName())).thenReturn(Optional.empty());
+        when(ingredientRepositoryMock.save(any(Ingredient.class))).thenReturn(ingredientMock);
+
+        Ingredient result = ingredientServiceMock.createIngredient(createIngredientInput);
+
+        assertNotNull(result);
+    }
+
+    @DisplayName("createIngredient should throw custom exception ingredient name is already exist for given createIngredientInput")
+    @Test
+    void testCreateIngredient_ingredientNameIsAlreadyExist() {
+        CreateIngredientInput createIngredientInput = new CreateIngredientInput("test_ingredient_name", IngredientTypeEnums.BAKERY, UnitTypeEnums.KG);
+
+        when(ingredientRepositoryMock.findByName(createIngredientInput.getName())).thenReturn(Optional.ofNullable(ingredientMock));
+
+        CustomException exceptionResult = assertThrows(CustomException.class, () -> ingredientServiceMock.createIngredient(createIngredientInput));
+
+        assertEquals("Ingredient name is already exist", exceptionResult.getMessage());
     }
 
     @AfterEach
