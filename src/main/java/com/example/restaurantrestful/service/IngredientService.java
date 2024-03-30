@@ -20,4 +20,11 @@ public class IngredientService {
         return ingredientRepository.findById(id).orElseThrow(CustomException::ingredientNotFound);
     }
 
+    public Ingredient getIngredientByName(String name) {
+        String ingredient_name = name.toLowerCase();
+        return ingredientRepository.findByName(ingredient_name).orElseThrow(CustomException::ingredientNameNotFound);
+    }
+
+
+
 }

@@ -32,7 +32,7 @@ class IngredientServiceTest {
     private Ingredient ingredientMock;
 
     @BeforeEach()
-    void setUp(){
+    void setUp() {
         ingredientMock = new Ingredient();
         ingredientMock.setId("test_id");
         ingredientMock.setName("test_ingredient_name");
@@ -44,8 +44,8 @@ class IngredientServiceTest {
 
     @DisplayName("getIngredientById should return a valid Ingredient for given input")
     @Test
-    void testGetIngredientById_success(){
-        String test_id ="test_id";
+    void testGetIngredientById_success() {
+        String test_id = "test_id";
         when(ingredientRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(ingredientMock));
 
         Ingredient result = ingredientServiceMock.getIngredientById(test_id);
@@ -55,15 +55,41 @@ class IngredientServiceTest {
 
     @DisplayName("getIngredientById should throw custom exception ingredientNotFound for given input")
     @Test
-    void testGetIngredientById_ingredientNotFound(){
+    void testGetIngredientById_ingredientNotFound() {
         String test_id = "test_id";
 
         when(ingredientRepositoryMock.findById(test_id)).thenReturn(Optional.empty());
 
-        CustomException result = assertThrows(CustomException.class,()-> ingredientServiceMock.getIngredientById(test_id),CustomException.ingredientNotFound().getMessage());
+        CustomException result = assertThrows(CustomException.class, () -> ingredientServiceMock.getIngredientById(test_id), CustomException.ingredientNotFound().getMessage());
 
-        assertEquals("Ingredient not found",result.getMessage());
+        assertEquals("Ingredient not found", result.getMessage());
 
+    }
+
+    @DisplayName("getIngredientByName should return a valid Ingredient for given input")
+    @Test
+    void testGetIngredientByName_success() {
+        String test_name = ingredientMock.getName().toLowerCase();
+
+        when(ingredientRepositoryMock.findByName(test_name)).thenReturn(Optional.ofNullable(ingredientMock));
+
+        Ingredient result = ingredientServiceMock.getIngredientByName(test_name.toLowerCase());
+
+        assertNotNull(result);
+        assertEquals(test_name, result.getName());
+
+    }
+
+    @DisplayName("getIngredientByName should throw custom exception ingredientNameNotFound for given input")
+    @Test
+    void testGetIngredientByName_ingredientNameNotFound() {
+        String test_name = ingredientMock.getName().toLowerCase();
+
+        when(ingredientRepositoryMock.findByName(test_name)).thenReturn(Optional.empty());
+
+        CustomException resultException = assertThrows(CustomException.class, () -> ingredientServiceMock.getIngredientByName(test_name));
+
+        assertEquals("Ingredient name not found", resultException.getMessage());
     }
 
     @AfterEach
