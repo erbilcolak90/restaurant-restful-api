@@ -62,7 +62,7 @@ public class IngredientService {
 
     @Transactional
     public Ingredient updateIngredient(UpdateIngredientInput updateIngredientInput) {
-        Ingredient dbIngredient = ingredientRepository.findById(updateIngredientInput.getId()).orElseThrow(CustomException::ingredientNotFound);
+        var dbIngredient = ingredientRepository.findById(updateIngredientInput.getId()).orElseThrow(CustomException::ingredientNotFound);
 
         if (updateIngredientInput.getName() != null) {
             ingredientRepository.findByName(updateIngredientInput.getName().toLowerCase())
@@ -78,6 +78,21 @@ public class IngredientService {
 
         ingredientRepository.save(dbIngredient);
         return dbIngredient;
+    }
+
+    @Transactional
+    public String deleteIngredient(String id) {
+        Ingredient dbIngredient = ingredientRepository.findById(id).orElseThrow(CustomException::ingredientNotFound);
+
+        if (dbIngredient.isDeleted()) {
+            throw CustomException.ingredientIsAlreadyDeleted();
+        }
+
+        dbIngredient.setDeleted(true);
+        dbIngredient.setUpdateDate(new Date());
+        ingredientRepository.save(dbIngredient);
+
+        return "Ingredient id : " + dbIngredient.getId() + " successfully deleted";
     }
 
 }

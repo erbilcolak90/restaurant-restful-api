@@ -17,4 +17,8 @@ public class CustomException extends RuntimeException {
     public static CustomException ingredientNameIsAlreadyExist() {
         return new CustomException("Ingredient name is already exist");
     }
+
+    public static CustomException ingredientIsAlreadyDeleted(){
+        return new CustomException("Ingredient is already deleted");
+    }
 }
