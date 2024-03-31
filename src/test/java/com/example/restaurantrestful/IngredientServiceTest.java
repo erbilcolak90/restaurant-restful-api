@@ -155,8 +155,8 @@ class IngredientServiceTest {
 
     @DisplayName("updateIngredient should return valid ingredient for given input")
     @Test
-    void testUpdateIngredient_success(){
-        UpdateIngredientInput updateIngredientInput = new UpdateIngredientInput("test_id","test_name",IngredientTypeEnums.CHEESE,UnitTypeEnums.GR);
+    void testUpdateIngredient_success() {
+        UpdateIngredientInput updateIngredientInput = new UpdateIngredientInput("test_id", "test_name", IngredientTypeEnums.CHEESE, UnitTypeEnums.GR);
         String name = Objects.requireNonNull(updateIngredientInput.getName()).toLowerCase();
 
         when(ingredientRepositoryMock.findById(updateIngredientInput.getId())).thenReturn(Optional.ofNullable(ingredientMock));
@@ -164,36 +164,72 @@ class IngredientServiceTest {
 
         Ingredient result = ingredientServiceMock.updateIngredient(updateIngredientInput);
 
-        assertEquals(name,result.getName());
-        assertEquals(updateIngredientInput.getType(),result.getType());
-        assertEquals(updateIngredientInput.getUnit(),result.getUnit());
+        assertEquals(name, result.getName());
+        assertEquals(updateIngredientInput.getType(), result.getType());
+        assertEquals(updateIngredientInput.getUnit(), result.getUnit());
     }
 
     @DisplayName("updateIngredient should throw custom exception ingredientNotFound when id from given input is not exist on database")
     @Test
-    void testUpdateIngredient_ingredientIsNotFound(){
-        UpdateIngredientInput updateIngredientInput = new UpdateIngredientInput("test_id","test_update_name",IngredientTypeEnums.CHEESE,UnitTypeEnums.GR);
+    void testUpdateIngredient_ingredientIsNotFound() {
+        UpdateIngredientInput updateIngredientInput = new UpdateIngredientInput("test_id", "test_update_name", IngredientTypeEnums.CHEESE, UnitTypeEnums.GR);
 
         when(ingredientRepositoryMock.findById(updateIngredientInput.getId())).thenReturn(Optional.empty());
 
-        CustomException result = assertThrows(CustomException.class,()-> ingredientServiceMock.updateIngredient(updateIngredientInput));
+        CustomException result = assertThrows(CustomException.class, () -> ingredientServiceMock.updateIngredient(updateIngredientInput));
 
-        assertEquals("Ingredient not found",result.getMessage());
+        assertEquals("Ingredient not found", result.getMessage());
     }
 
     @DisplayName("updateIngredient should throw custom exception ingredientNameIsAlreadyExist when name field from given input is match with different ingredient on DB")
     @Test
-    void testUpdateIngredient_ingredientNameIsAlreadyExist(){
-        UpdateIngredientInput updateIngredientInput = new UpdateIngredientInput("test_id","test_ingredient_name",IngredientTypeEnums.CHEESE,UnitTypeEnums.GR);
-        Ingredient secondIngredient = new Ingredient("id","test_ingredient_name",IngredientTypeEnums.BAKERY,UnitTypeEnums.KG);
+    void testUpdateIngredient_ingredientNameIsAlreadyExist() {
+        UpdateIngredientInput updateIngredientInput = new UpdateIngredientInput("test_id", "test_ingredient_name", IngredientTypeEnums.CHEESE, UnitTypeEnums.GR);
+        Ingredient secondIngredient = new Ingredient("id", "test_ingredient_name", IngredientTypeEnums.BAKERY, UnitTypeEnums.KG);
         String name = Objects.requireNonNull(updateIngredientInput.getName()).toLowerCase();
 
         when(ingredientRepositoryMock.findById(updateIngredientInput.getId())).thenReturn(Optional.ofNullable(ingredientMock));
         when(ingredientRepositoryMock.findByName(name)).thenReturn(Optional.of(secondIngredient));
 
-        CustomException result = assertThrows(CustomException.class,()-> ingredientServiceMock.updateIngredient(updateIngredientInput));
+        CustomException result = assertThrows(CustomException.class, () -> ingredientServiceMock.updateIngredient(updateIngredientInput));
 
         assertEquals("Ingredient name is already exist", result.getMessage());
+    }
+
+    @DisplayName("deleteIngredient should return String Ingredient id : {id} + successfully deleted with given input id")
+    @Test
+    void testDeleteIngredient_success() {
+        String test_id = "test_id";
+
+        when(ingredientRepositoryMock.findById(test_id.toLowerCase())).thenReturn(Optional.ofNullable(ingredientMock));
+
+        String result = ingredientServiceMock.deleteIngredient(test_id);
+
+        assertEquals("Ingredient id : " + ingredientMock.getId() + " successfully deleted", result);
+    }
+
+    @DisplayName("deleteIngredient should throw custom exception ingredientIsNotFound with given input id")
+    @Test
+    void testDeleteIngredient_ingredientNotFound() {
+        String test_id = "test_id";
+
+        when(ingredientRepositoryMock.findById(test_id.toLowerCase())).thenReturn(Optional.empty());
+
+        CustomException result = assertThrows(CustomException.class, () -> ingredientServiceMock.deleteIngredient(test_id));
+
+        assertEquals("Ingredient not found", result.getMessage());
+    }
+
+    @DisplayName("deleteIngredient should throw custom exception ingredientIsAlreadyDeleted with given input id")
+    @Test
+    void testDeleteIngredient_ingredientIsAlreadyDeleted() {
+        String test_id = "test_id";
+        ingredientMock.setDeleted(true);
+        when(ingredientRepositoryMock.findById(test_id.toLowerCase())).thenReturn(Optional.ofNullable(ingredientMock));
+
+        CustomException result = assertThrows(CustomException.class, () -> ingredientServiceMock.deleteIngredient(test_id));
+
+        assertEquals("Ingredient is already deleted", result.getMessage());
     }
 
     @AfterEach
