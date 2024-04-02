@@ -8,7 +8,7 @@ import com.example.restaurantrestful.enums.IngredientTypeEnums;
 import com.example.restaurantrestful.enums.SortBy;
 import com.example.restaurantrestful.enums.UnitTypeEnums;
 import com.example.restaurantrestful.exception.CustomException;
-import com.example.restaurantrestful.repository.IngredientRepository;
+import com.example.restaurantrestful.repository.jpa.IngredientRepository;
 import com.example.restaurantrestful.service.IngredientService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
