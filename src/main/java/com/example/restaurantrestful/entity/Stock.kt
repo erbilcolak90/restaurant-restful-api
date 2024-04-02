@@ -23,3 +23,5 @@ data class Stock @JvmOverloads constructor(
         var quantity: Double,
         @Field(type= FieldType.Date)
         var expireDate: Date =Date()): BaseEntity()
+
+
