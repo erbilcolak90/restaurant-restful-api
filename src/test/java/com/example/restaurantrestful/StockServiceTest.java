@@ -1,5 +1,6 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.dto.inputs.stock.GetAllStocksInput;
 import com.example.restaurantrestful.dto.inputs.stock.GetStocksByIngredientIdInput;
 import com.example.restaurantrestful.dto.payloads.StockPayload;
 import com.example.restaurantrestful.entity.Stock;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class StockServiceTest {
+class StockServiceTest {
 
     @InjectMocks
     private StockService stockServiceMock;
@@ -70,7 +71,7 @@ public class StockServiceTest {
     void testGetStockById_stockNotFound() {
         when(stockRepositoryMock.findById(anyString())).thenReturn(Optional.empty());
 
-        CustomException result = assertThrows(CustomException.class, () -> stockServiceMock.getStockById(anyString()));
+        CustomException result = assertThrows(CustomException.class, () -> stockServiceMock.getStockById("test"));
 
         assertEquals("Stock not found", result.getMessage());
     }
@@ -91,6 +92,21 @@ public class StockServiceTest {
         assertNotNull(result);
         assertEquals(stockPayloadsPage.getTotalElements(), result.getTotalElements());
     }
+    @DisplayName("getStocksByIngredientId should return page stock when getAllStocksInput given input")
+    @Test
+    void testGetAllStocks_success() {
+        GetAllStocksInput getAllStocks = new GetAllStocksInput(1, 1, SortBy.ASC, "create_date");
+        List<Stock> stockList = new ArrayList<>();
+        Pageable pageable = PageRequest.of(1, 1, Sort.Direction.ASC, "create_date");
+        stockList.add(stockMock);
+        Page<Stock> stocksPage = new PageImpl<>(stockList, pageable, stockList.size());
 
+        when(stockRepositoryMock.findAll(pageable)).thenReturn(stocksPage);
+
+        Page<Stock> result = stockServiceMock.getAllStocks(getAllStocks);
+
+        assertNotNull(result);
+        assertEquals(stocksPage.getTotalElements(), result.getTotalElements());
+    }
 
 }
