@@ -1,4 +1,4 @@
-package com.example.restaurantrestful.repository;
+package com.example.restaurantrestful.repository.jpa;
 
 import com.example.restaurantrestful.entity.Ingredient;
 import org.springframework.data.jpa.repository.JpaRepository;

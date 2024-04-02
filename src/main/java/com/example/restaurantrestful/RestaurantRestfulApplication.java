@@ -2,8 +2,12 @@ package com.example.restaurantrestful;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
+@EnableJpaRepositories("com.example.restaurantrestful.repository.jpa")
+@EnableElasticsearchRepositories("com.example.restaurantrestful.repository.elastic")
 public class RestaurantRestfulApplication {
 
 	public static void main(String[] args) {

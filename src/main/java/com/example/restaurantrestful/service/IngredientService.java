@@ -5,7 +5,7 @@ import com.example.restaurantrestful.dto.inputs.ingredient.GetAllIngredientsInpu
 import com.example.restaurantrestful.dto.inputs.ingredient.UpdateIngredientInput;
 import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.exception.CustomException;
-import com.example.restaurantrestful.repository.IngredientRepository;
+import com.example.restaurantrestful.repository.jpa.IngredientRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
