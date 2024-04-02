@@ -1,5 +1,7 @@
 package com.example.restaurantrestful.exception;
 
+import java.util.function.Supplier;
+
 public class CustomException extends RuntimeException {
 
     public CustomException(String message) {
@@ -20,5 +22,9 @@ public class CustomException extends RuntimeException {
 
     public static CustomException ingredientIsAlreadyDeleted(){
         return new CustomException("Ingredient is already deleted");
+    }
+
+    public static CustomException stockNotFound() {
+        return new CustomException("Stock not found");
     }
 }
