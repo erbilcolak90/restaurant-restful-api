@@ -31,4 +31,8 @@ public class CustomException extends RuntimeException {
     public static CustomException stockIsAlreadyDeleted() {
         return new CustomException("Stock is already deleted");
     }
+
+    public static CustomException recipeNotFound(){
+        return new CustomException("Recipe not found");
+    }
 }
