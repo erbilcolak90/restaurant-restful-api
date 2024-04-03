@@ -27,4 +27,8 @@ public class CustomException extends RuntimeException {
     public static CustomException stockNotFound() {
         return new CustomException("Stock not found");
     }
+
+    public static CustomException stockIsAlreadyDeleted() {
+        return new CustomException("Stock is already deleted");
+    }
 }

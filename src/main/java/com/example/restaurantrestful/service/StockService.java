@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -51,7 +52,8 @@ public class StockService {
 
         return stockRepository.findAll(pageable);
     }
-    
+
+    @Transactional
     public StockPayload addIngredientToStock(AddIngredientToStockInput addIngredientToStockInput) {
         Ingredient dbIngredient = ingredientService.getIngredientById(addIngredientToStockInput.getIngredientId());
 
@@ -64,9 +66,9 @@ public class StockService {
 
         Stock dbStock = stockRepository.save(stock);
         return StockPayload.convert(dbStock);
-        }
+    }
 
-
+    @Transactional
     public StockPayload updateStockQuantity(String id, Double quantity) {
 
         var dbStock = stockRepository.findByIdAndIsDeletedFalse(id).orElseThrow(CustomException::stockNotFound);
@@ -106,6 +108,19 @@ public class StockService {
         stockRepository.save(dbStock);
 
         return StockPayload.convert(dbStock);
+    }
+
+    public boolean deleteStockById(String id) {
+        Stock dbStock = stockRepository.findById(id).orElseThrow(CustomException::stockNotFound);
+
+        if (dbStock.isDeleted()) {
+            throw CustomException.stockIsAlreadyDeleted();
+        }
+        dbStock.setDeleted(true);
+        dbStock.setUpdateDate(new Date());
+        stockRepository.save(dbStock);
+
+        return true;
     }
 
 }

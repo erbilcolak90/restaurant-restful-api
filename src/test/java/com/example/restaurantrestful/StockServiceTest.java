@@ -248,4 +248,43 @@ class StockServiceTest {
         assertEquals("Ingredient not found",result.getMessage());
     }
 
+    @DisplayName("deleteStockById should true when given id is exist and isDeleted false")
+    @Test
+    void testDeleteStockById_success(){
+        String test_id = "test_id";
+
+        when(stockRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(stockMock));
+
+        boolean result = stockServiceMock.deleteStockById(test_id);
+
+        assertTrue(result);
+    }
+
+    @DisplayName("deleteStockById should throw custom exception stockNotFound when given id does not exist")
+    @Test
+    void testDeleteStockById_stockNotFound(){
+        String test_id = "test_id";
+
+        when(stockRepositoryMock.findById(test_id)).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class,()-> stockServiceMock.deleteStockById(test_id));
+
+        assertEquals("Stock not found",exception.getMessage());
+
+    }
+
+    @DisplayName("deleteStockById should throw custom exception stockIsAlreadyDeleted when given id is exist but isDeleted true")
+    @Test
+    void testDeleteStockById_stockIsAlreadyDeleted(){
+        String test_id = "test_id";
+        stockMock.setDeleted(true);
+
+        when(stockRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(stockMock));
+
+        CustomException exception = assertThrows(CustomException.class,()-> stockServiceMock.deleteStockById(test_id));
+
+        assertEquals("Stock is already deleted",exception.getMessage());
+
+    }
+
 }
