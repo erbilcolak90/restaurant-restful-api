@@ -17,4 +17,4 @@ data class IngredientListItem @JvmOverloads constructor(
         @Field(type = FieldType.Keyword)
         var unit: String,
         var quantity: Double
-)
+): BaseEntity()
