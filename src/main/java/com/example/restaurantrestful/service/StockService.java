@@ -1,8 +1,10 @@
 package com.example.restaurantrestful.service;
 
+import com.example.restaurantrestful.dto.inputs.stock.AddIngredientToStockInput;
 import com.example.restaurantrestful.dto.inputs.stock.GetAllStocksInput;
 import com.example.restaurantrestful.dto.inputs.stock.GetStocksByIngredientIdInput;
 import com.example.restaurantrestful.dto.payloads.StockPayload;
+import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.entity.Stock;
 import com.example.restaurantrestful.enums.UnitTypeEnums;
 import com.example.restaurantrestful.exception.CustomException;
@@ -14,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-
 
 @Service
 public class StockService {
@@ -50,6 +51,21 @@ public class StockService {
 
         return stockRepository.findAll(pageable);
     }
+    
+    public StockPayload addIngredientToStock(AddIngredientToStockInput addIngredientToStockInput) {
+        Ingredient dbIngredient = ingredientService.getIngredientById(addIngredientToStockInput.getIngredientId());
+
+        Stock stock = new Stock();
+        stock.setIngredientId(dbIngredient.getId());
+        stock.setType(addIngredientToStockInput.getType().toString());
+        stock.setUnit(addIngredientToStockInput.getUnit().toString());
+        stock.setQuantity(addIngredientToStockInput.getQuantity());
+        stock.setExpireDate(addIngredientToStockInput.getExpireDate());
+
+        Stock dbStock = stockRepository.save(stock);
+        return StockPayload.convert(dbStock);
+        }
+
 
     public StockPayload updateStockQuantity(String id, Double quantity) {
 
