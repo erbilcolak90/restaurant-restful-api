@@ -5,6 +5,7 @@ import com.example.restaurantrestful.dto.inputs.stock.GetStocksByIngredientIdInp
 import com.example.restaurantrestful.dto.payloads.StockPayload;
 import com.example.restaurantrestful.entity.Stock;
 import com.example.restaurantrestful.enums.SortBy;
+import com.example.restaurantrestful.enums.UnitTypeEnums;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.elastic.StockRepository;
 import com.example.restaurantrestful.service.IngredientService;
@@ -92,6 +93,7 @@ class StockServiceTest {
         assertNotNull(result);
         assertEquals(stockPayloadsPage.getTotalElements(), result.getTotalElements());
     }
+
     @DisplayName("getStocksByIngredientId should return page stock when getAllStocksInput given input")
     @Test
     void testGetAllStocks_success() {
@@ -109,4 +111,96 @@ class StockServiceTest {
         assertEquals(stocksPage.getTotalElements(), result.getTotalElements());
     }
 
+    @DisplayName("updateStockQuantity should return valid stockPayload when given id exist and quantity greather zero")
+    @Test
+    void testUpdateStockQuantity_successCaseKG() {
+        String test_id = "test_id";
+        Double quantity = 100.0;
+        stockMock.setUnit(UnitTypeEnums.GR.toString());
+        stockMock.setQuantity(900.0);
+
+        when(stockRepositoryMock.findByIdAndIsDeletedFalse(test_id)).thenReturn(Optional.ofNullable(stockMock));
+
+        StockPayload result = stockServiceMock.updateStockQuantity(test_id, quantity);
+
+        assertEquals(test_id, result.getId());
+        assertEquals(UnitTypeEnums.KG.toString(), result.getUnit());
+    }
+
+    @DisplayName("updateStockQuantity should return valid stockPayload when given id exist and quantity greather zero")
+    @Test
+    void testUpdateStockQuantity_successCaseGR() {
+        String test_id = "test_id";
+        Double quantity = -0.01;
+        stockMock.setQuantity(1.0);
+
+        when(stockRepositoryMock.findByIdAndIsDeletedFalse(test_id)).thenReturn(Optional.ofNullable(stockMock));
+
+        StockPayload result = stockServiceMock.updateStockQuantity(test_id, quantity);
+
+        assertEquals(test_id, result.getId());
+        assertEquals(UnitTypeEnums.GR.toString(), result.getUnit());
+    }
+
+    @DisplayName("updateStockQuantity should return valid stockPayload when given id exist and quantity greather zero")
+    @Test
+    void testUpdateStockQuantity_successCaseLT() {
+        String test_id = "test_id";
+        Double quantity = 1.0;
+        stockMock.setUnit(UnitTypeEnums.MIL.toString());
+        stockMock.setQuantity(1000.0);
+
+        when(stockRepositoryMock.findByIdAndIsDeletedFalse(test_id)).thenReturn(Optional.ofNullable(stockMock));
+
+        StockPayload result = stockServiceMock.updateStockQuantity(test_id, quantity);
+
+        assertEquals(test_id, result.getId());
+        assertEquals(UnitTypeEnums.LT.toString(), result.getUnit());
+
+    }
+
+    @DisplayName("updateStockQuantity should return valid stockPayload when given id exist and quantity greather zero")
+    @Test
+    void testUpdateStockQuantity_successCaseMIL() {
+        String test_id = "test_id";
+        Double quantity = -0.01;
+        stockMock.setUnit(UnitTypeEnums.LT.toString());
+        stockMock.setQuantity(1.0);
+
+        when(stockRepositoryMock.findByIdAndIsDeletedFalse(test_id)).thenReturn(Optional.ofNullable(stockMock));
+
+        StockPayload result = stockServiceMock.updateStockQuantity(test_id, quantity);
+
+        assertEquals(test_id, result.getId());
+        assertEquals(UnitTypeEnums.MIL.toString(), result.getUnit());
+    }
+
+
+
+    @DisplayName("updateStockQuantity should throw custom exception stock not found exception when given id does not exist")
+    @Test
+    void testUpdateStockQuantity_stockNotFound() {
+        String test_id = "test_id";
+        Double quantity = 100.0;
+
+
+        when(stockRepositoryMock.findByIdAndIsDeletedFalse(test_id)).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class, () -> stockServiceMock.updateStockQuantity(test_id, quantity));
+
+        assertEquals("Stock not found", exception.getMessage());
+    }
+
+    @DisplayName("updateStockQuantity should throw illegal argument exception when stock id is exist but quantity value equals zero or less than zero")
+    @Test
+    void testUpdateStockQuantity_illegalArgumentException() {
+        String test_id = "test_id";
+        Double quantity = 0.0;
+
+        when(stockRepositoryMock.findByIdAndIsDeletedFalse(test_id)).thenReturn(Optional.ofNullable(stockMock));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> stockServiceMock.updateStockQuantity(test_id, quantity));
+
+        assertEquals("Quantity must be greater or less than 0", exception.getMessage());
+    }
 }
