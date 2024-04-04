@@ -120,4 +120,32 @@ class RecipeServiceTest {
         assertEquals("Ingredient not found",exception.getMessage());
     }
 
+    @DisplayName("getRecipeByName should return valid recipe when given name is exist")
+    @Test
+    void testGetRecipeByName_success(){
+        String test_name = "test_name";
+
+        when(recipeRepositoryMock.findByName(test_name)).thenReturn(Optional.ofNullable(recipeMock));
+
+        Recipe result = recipeServiceMock.getRecipeByName(test_name);
+
+        assertNotNull(result);
+        assertEquals(1,result.getIngredientListItem().size());
+
+    }
+
+    @DisplayName("getRecipeByName should throw custom exception recipeNotFound exception when given name does not exist")
+    @Test
+    void testGetRecipeByName_recipeNotFound(){
+        String test_name = "test_name";
+
+        when(recipeRepositoryMock.findByName(test_name)).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class,()-> recipeServiceMock.getRecipeByName(test_name));
+
+        assertEquals("Recipe not found",exception.getMessage());
+
+    }
+
+
 }
