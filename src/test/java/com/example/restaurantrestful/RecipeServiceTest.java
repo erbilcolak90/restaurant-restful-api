@@ -1,5 +1,6 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.dto.inputs.recipe.CreateRecipeInput;
 import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.entity.IngredientListItem;
 import com.example.restaurantrestful.entity.Recipe;
@@ -50,7 +51,7 @@ class RecipeServiceTest {
     private IngredientListItem ingredientListItemMock;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         ingredientListItemMock = new IngredientListItem();
         ingredientListItemMock.setId("test_1");
         ingredientListItemMock.setIngredientId("test_ingredient_id_1");
@@ -67,7 +68,7 @@ class RecipeServiceTest {
 
     @DisplayName("getRecipeById should return valid recipe when given id is exist")
     @Test
-    void testGetRecipeById_success(){
+    void testGetRecipeById_success() {
         String test_id = "test_id";
 
         when(recipeRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(recipeMock));
@@ -75,28 +76,28 @@ class RecipeServiceTest {
         Recipe result = recipeServiceMock.getRecipeById(test_id);
 
         assertNotNull(result);
-        assertEquals(1,result.getIngredientListItem().size());
+        assertEquals(1, result.getIngredientListItem().size());
 
     }
 
     @DisplayName("getRecipeById should throw custom exception recipeNotFound exception when given id does not exist")
     @Test
-    void testGetRecipeById_recipeNotFound(){
+    void testGetRecipeById_recipeNotFound() {
         String test_id = "test_id";
 
         when(recipeRepositoryMock.findById(test_id)).thenReturn(Optional.empty());
 
-        CustomException exception = assertThrows(CustomException.class,()-> recipeServiceMock.getRecipeById(test_id));
+        CustomException exception = assertThrows(CustomException.class, () -> recipeServiceMock.getRecipeById(test_id));
 
-        assertEquals("Recipe not found",exception.getMessage());
+        assertEquals("Recipe not found", exception.getMessage());
 
     }
 
     @DisplayName("getRecipeByContainsIngredient should return list recipe when given id is exist")
     @Test
-    void testGetRecipeByContainsIngredient_success(){
+    void testGetRecipeByContainsIngredient_success() {
         String test_id = "test_ingredient_id_1";
-        Ingredient dbIngredient = new Ingredient("test_ingredient_id_1","test_name",IngredientTypeEnums.BAKERY,UnitTypeEnums.KG);
+        Ingredient dbIngredient = new Ingredient("test_ingredient_id_1", "test_name", IngredientTypeEnums.BAKERY, UnitTypeEnums.KG);
         List<Recipe> recipeList = new ArrayList<>();
         recipeList.add(recipeMock);
 
@@ -105,24 +106,24 @@ class RecipeServiceTest {
 
         List<Recipe> result = recipeServiceMock.getRecipeByContainsIngredient(test_id);
 
-        assertEquals(1,result.size());
+        assertEquals(1, result.size());
     }
 
     @DisplayName("getRecipeByContainsIngredient should throw custom exception ingredient not found when given id does not exist")
     @Test
-    void testGetRecipeByContainsIngredient_ingredientNotFound(){
+    void testGetRecipeByContainsIngredient_ingredientNotFound() {
         String test_id = "test_id";
 
         when(ingredientServiceMock.getIngredientById(test_id)).thenThrow(CustomException.ingredientNotFound());
 
-        CustomException exception = assertThrows(CustomException.class,()->recipeServiceMock.getRecipeByContainsIngredient(test_id));
+        CustomException exception = assertThrows(CustomException.class, () -> recipeServiceMock.getRecipeByContainsIngredient(test_id));
 
-        assertEquals("Ingredient not found",exception.getMessage());
+        assertEquals("Ingredient not found", exception.getMessage());
     }
 
     @DisplayName("getRecipeByName should return valid recipe when given name is exist")
     @Test
-    void testGetRecipeByName_success(){
+    void testGetRecipeByName_success() {
         String test_name = "test_name";
 
         when(recipeRepositoryMock.findByName(test_name)).thenReturn(Optional.ofNullable(recipeMock));
@@ -130,21 +131,49 @@ class RecipeServiceTest {
         Recipe result = recipeServiceMock.getRecipeByName(test_name);
 
         assertNotNull(result);
-        assertEquals(1,result.getIngredientListItem().size());
+        assertEquals(1, result.getIngredientListItem().size());
 
     }
 
     @DisplayName("getRecipeByName should throw custom exception recipeNotFound exception when given name does not exist")
     @Test
-    void testGetRecipeByName_recipeNotFound(){
+    void testGetRecipeByName_recipeNotFound() {
         String test_name = "test_name";
 
         when(recipeRepositoryMock.findByName(test_name)).thenReturn(Optional.empty());
 
-        CustomException exception = assertThrows(CustomException.class,()-> recipeServiceMock.getRecipeByName(test_name));
+        CustomException exception = assertThrows(CustomException.class, () -> recipeServiceMock.getRecipeByName(test_name));
 
-        assertEquals("Recipe not found",exception.getMessage());
+        assertEquals("Recipe not found", exception.getMessage());
 
+    }
+
+    @DisplayName("createRecipe should return valid Recipe when given name in createRecipeInput")
+    @Test
+    void testCreateRecipe_success() {
+        CreateRecipeInput createRecipeInput = new CreateRecipeInput("test_name");
+        recipeMock.setIngredientListItem(null);
+
+        when(recipeRepositoryMock.findByName(createRecipeInput.getName().toLowerCase())).thenReturn(Optional.empty());
+        when(recipeRepositoryMock.save(any(Recipe.class))).thenReturn(recipeMock);
+
+        Recipe result = recipeServiceMock.createRecipe(createRecipeInput);
+
+        assertNotNull(result);
+        assertEquals("test_name", result.getName());
+    }
+
+    @DisplayName("createRecipe should throw custom exception recipeNameIsAlreadyExist when given name in createRecipeInput")
+    @Test
+    void testCreateRecipe_recipeNameIsAlreadyExist() {
+        CreateRecipeInput createRecipeInput = new CreateRecipeInput("test_name");
+        recipeMock.setIngredientListItem(null);
+
+        when(recipeRepositoryMock.findByName(createRecipeInput.getName().toLowerCase())).thenReturn(Optional.ofNullable(recipeMock));
+
+        CustomException exception = assertThrows(CustomException.class, () -> recipeServiceMock.createRecipe(createRecipeInput));
+
+        assertEquals("Recipe name is already exist", exception.getMessage());
     }
 
 
