@@ -1,6 +1,7 @@
 package com.example.restaurantrestful.service;
 
 import com.example.restaurantrestful.dto.inputs.ingredientlistitem.CreateIngredientListItemInput;
+import com.example.restaurantrestful.dto.inputs.ingredientlistitem.UpdateIngredientListItemInput;
 import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.entity.IngredientListItem;
 import com.example.restaurantrestful.entity.Recipe;
@@ -11,6 +12,7 @@ import com.example.restaurantrestful.repository.jpa.IngredientRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -39,7 +41,7 @@ public class IngredientListItemService {
     }
 
     @Transactional
-    public IngredientListItem createIngredientListItem(CreateIngredientListItemInput createIngredientListItemInput){
+    public IngredientListItem createIngredientListItem(CreateIngredientListItemInput createIngredientListItemInput) {
 
         Ingredient dbIngredient = ingredientRepository.findById(createIngredientListItemInput.getIngredientId()).orElseThrow(CustomException::ingredientNotFound);
         Recipe dbRecipe = recipeRepository.findById(createIngredientListItemInput.getRecipeId()).orElseThrow(CustomException::recipeNotFound);
@@ -54,5 +56,35 @@ public class IngredientListItemService {
         ingredientListItemRepository.save(newItem);
 
         return newItem;
+    }
+
+    @Transactional
+    public IngredientListItem updateIngredientListItem(UpdateIngredientListItemInput updateIngredientListItemInput) {
+
+        IngredientListItem dbIngredientListItem = ingredientListItemRepository.findById(updateIngredientListItemInput.getIngredientListItemId()).orElseThrow(CustomException::ingredientListItemNotFound);
+
+
+        if (updateIngredientListItemInput.getIngredientId() != null && ingredientRepository.existsById(updateIngredientListItemInput.getIngredientId())) {
+            dbIngredientListItem.setIngredientId(updateIngredientListItemInput.getIngredientId());
+        }
+        if (updateIngredientListItemInput.getRecipeId() != null && recipeRepository.existsById(updateIngredientListItemInput.getRecipeId())) {
+            dbIngredientListItem.setRecipeId(updateIngredientListItemInput.getRecipeId());
+        }
+
+        if (updateIngredientListItemInput.getType() != null) {
+            dbIngredientListItem.setIngredientType(updateIngredientListItemInput.getType().toString());
+        }
+        if (updateIngredientListItemInput.getUnit() != null) {
+            dbIngredientListItem.setUnit(updateIngredientListItemInput.getUnit().toString());
+        }
+        if (updateIngredientListItemInput.getQuantity() != null && updateIngredientListItemInput.getQuantity() > 0) {
+            dbIngredientListItem.setQuantity(updateIngredientListItemInput.getQuantity());
+        }
+        dbIngredientListItem.setUpdateDate(new Date());
+
+        ingredientListItemRepository.save(dbIngredientListItem);
+
+        return dbIngredientListItem;
+
     }
 }

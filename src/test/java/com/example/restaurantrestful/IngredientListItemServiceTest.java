@@ -1,6 +1,7 @@
 package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.dto.inputs.ingredientlistitem.CreateIngredientListItemInput;
+import com.example.restaurantrestful.dto.inputs.ingredientlistitem.UpdateIngredientListItemInput;
 import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.entity.IngredientListItem;
 import com.example.restaurantrestful.entity.Recipe;
@@ -163,4 +164,35 @@ class IngredientListItemServiceTest {
         assertEquals("Recipe not found", exception.getMessage());
 
     }
+
+    @DisplayName("updateIngredientListItem should return valid ingredientListItem when given updateIngredientListItemInput")
+    @Test
+    void testUpdateIngredientListItem_success(){
+        UpdateIngredientListItemInput updateIngredientListItemInput = new UpdateIngredientListItemInput("test_id","test_ingredient_id","test_recipe_id",IngredientTypeEnums.CHEESE,UnitTypeEnums.KG,400.0);
+
+        when(ingredientListItemRepositoryMock.findById(updateIngredientListItemInput.getIngredientListItemId())).thenReturn(Optional.ofNullable(ingredientListItemMock));
+        when(recipeRepositoryMock.existsById(updateIngredientListItemInput.getRecipeId())).thenReturn(true);
+        when(ingredientRepositoryMock.existsById(updateIngredientListItemInput.getIngredientId())).thenReturn(true);
+
+        IngredientListItem result = ingredientListItemServiceMock.updateIngredientListItem(updateIngredientListItemInput);
+
+        assertEquals(400,result.getQuantity());
+        assertEquals(IngredientTypeEnums.CHEESE.toString(),result.getIngredientType());
+
+    }
+
+    @DisplayName("updateIngredientListItem should throw custom exception ingredientListItemNotFound when id in updateIngredientListItem does not exist")
+    @Test
+    void testUpdateIngredientListItem_ingredientListItemNotFound() {
+        UpdateIngredientListItemInput updateIngredientListItemInput = new UpdateIngredientListItemInput("test_id","test_ingredient_id","test_recipe_id",IngredientTypeEnums.CHEESE,UnitTypeEnums.KG,400.0);
+
+        when(ingredientListItemRepositoryMock.findById(updateIngredientListItemInput.getIngredientListItemId())).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class, () -> ingredientListItemServiceMock.updateIngredientListItem(updateIngredientListItemInput));
+
+        assertEquals("Ingredient list item not found", exception.getMessage());
+
+    }
+
+
 }
