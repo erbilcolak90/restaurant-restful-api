@@ -1,5 +1,6 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.entity.IngredientListItem;
 import com.example.restaurantrestful.entity.Recipe;
 import com.example.restaurantrestful.enums.IngredientTypeEnums;
@@ -7,6 +8,7 @@ import com.example.restaurantrestful.enums.UnitTypeEnums;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.elastic.RecipeRepository;
 import com.example.restaurantrestful.service.IngredientListItemService;
+import com.example.restaurantrestful.service.IngredientService;
 import com.example.restaurantrestful.service.RecipeService;
 import com.example.restaurantrestful.service.StockService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +19,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +41,9 @@ class RecipeServiceTest {
 
     @Mock
     private StockService stockServiceMock;
+
+    @Mock
+    private IngredientService ingredientServiceMock;
 
     private Recipe recipeMock;
 
@@ -83,6 +90,34 @@ class RecipeServiceTest {
 
         assertEquals("Recipe not found",exception.getMessage());
 
+    }
+
+    @DisplayName("getRecipeByContainsIngredient should return list recipe when given id is exist")
+    @Test
+    void testGetRecipeByContainsIngredient_success(){
+        String test_id = "test_ingredient_id_1";
+        Ingredient dbIngredient = new Ingredient("test_ingredient_id_1","test_name",IngredientTypeEnums.BAKERY,UnitTypeEnums.KG);
+        List<Recipe> recipeList = new ArrayList<>();
+        recipeList.add(recipeMock);
+
+        when(ingredientServiceMock.getIngredientById(test_id)).thenReturn(dbIngredient);
+        when(recipeRepositoryMock.findByIngredientId(test_id)).thenReturn(recipeList);
+
+        List<Recipe> result = recipeServiceMock.getRecipeByContainsIngredient(test_id);
+
+        assertEquals(1,result.size());
+    }
+
+    @DisplayName("getRecipeByContainsIngredient should throw custom exception ingredient not found when given id does not exist")
+    @Test
+    void testGetRecipeByContainsIngredient_ingredientNotFound(){
+        String test_id = "test_id";
+
+        when(ingredientServiceMock.getIngredientById(test_id)).thenThrow(CustomException.ingredientNotFound());
+
+        CustomException exception = assertThrows(CustomException.class,()->recipeServiceMock.getRecipeByContainsIngredient(test_id));
+
+        assertEquals("Ingredient not found",exception.getMessage());
     }
 
 }
