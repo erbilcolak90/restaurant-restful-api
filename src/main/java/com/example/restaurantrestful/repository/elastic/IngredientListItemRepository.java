@@ -10,4 +10,7 @@ public interface IngredientListItemRepository extends ElasticsearchRepository<In
 
     @Query("{\"bool\": {\"must\": [{\"match\": {\"recipeId\": \"?0\"}}]}}")
     List<IngredientListItem> findIngredientListItemsByContainsRecipeId(String recipeId);
+
+    @Query("{\"bool\": {\"must\": {\"match\": {\"id\": \"?0\"}, {\"match\": {\"isDeleted\": \"false\"}}}}")
+    IngredientListItem findByIdAndIsDeletedFalse(String ingredientListItemId);
 }

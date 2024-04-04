@@ -87,4 +87,17 @@ public class IngredientListItemService {
         return dbIngredientListItem;
 
     }
+
+    @Transactional
+    public boolean deleteIngredientListItem(String ingredientListItemId){
+        IngredientListItem dbIngredientListItem = ingredientListItemRepository.findById(ingredientListItemId).orElseThrow(CustomException::ingredientListItemNotFound);
+        if(dbIngredientListItem.isDeleted()){
+            throw CustomException.ingredientListItemIsAlreadyDeleted();
+        }else{
+            dbIngredientListItem.setDeleted(true);
+            dbIngredientListItem.setUpdateDate(new Date());
+            ingredientListItemRepository.save(dbIngredientListItem);
+            return true;
+        }
+    }
 }

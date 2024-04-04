@@ -43,4 +43,8 @@ public class CustomException extends RuntimeException {
     public static CustomException ingredientListItemNotFound() {
         return new CustomException("Ingredient list item not found");
     }
+
+    public static CustomException ingredientListItemIsAlreadyDeleted() {
+        return new CustomException("Ingredient list item is already deleted");
+    }
 }

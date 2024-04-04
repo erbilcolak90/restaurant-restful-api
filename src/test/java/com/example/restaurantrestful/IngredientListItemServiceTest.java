@@ -133,8 +133,8 @@ class IngredientListItemServiceTest {
 
         IngredientListItem result = ingredientListItemServiceMock.createIngredientListItem(createIngredientListItemInput);
 
-        assertEquals("test_ingredient_id",result.getIngredientId());
-        assertEquals("test_recipe_id",result.getRecipeId());
+        assertEquals("test_ingredient_id", result.getIngredientId());
+        assertEquals("test_recipe_id", result.getRecipeId());
 
     }
 
@@ -167,8 +167,8 @@ class IngredientListItemServiceTest {
 
     @DisplayName("updateIngredientListItem should return valid ingredientListItem when given updateIngredientListItemInput")
     @Test
-    void testUpdateIngredientListItem_success(){
-        UpdateIngredientListItemInput updateIngredientListItemInput = new UpdateIngredientListItemInput("test_id","test_ingredient_id","test_recipe_id",IngredientTypeEnums.CHEESE,UnitTypeEnums.KG,400.0);
+    void testUpdateIngredientListItem_success() {
+        UpdateIngredientListItemInput updateIngredientListItemInput = new UpdateIngredientListItemInput("test_id", "test_ingredient_id", "test_recipe_id", IngredientTypeEnums.CHEESE, UnitTypeEnums.KG, 400.0);
 
         when(ingredientListItemRepositoryMock.findById(updateIngredientListItemInput.getIngredientListItemId())).thenReturn(Optional.ofNullable(ingredientListItemMock));
         when(recipeRepositoryMock.existsById(updateIngredientListItemInput.getRecipeId())).thenReturn(true);
@@ -176,15 +176,15 @@ class IngredientListItemServiceTest {
 
         IngredientListItem result = ingredientListItemServiceMock.updateIngredientListItem(updateIngredientListItemInput);
 
-        assertEquals(400,result.getQuantity());
-        assertEquals(IngredientTypeEnums.CHEESE.toString(),result.getIngredientType());
+        assertEquals(400, result.getQuantity());
+        assertEquals(IngredientTypeEnums.CHEESE.toString(), result.getIngredientType());
 
     }
 
     @DisplayName("updateIngredientListItem should throw custom exception ingredientListItemNotFound when id in updateIngredientListItem does not exist")
     @Test
     void testUpdateIngredientListItem_ingredientListItemNotFound() {
-        UpdateIngredientListItemInput updateIngredientListItemInput = new UpdateIngredientListItemInput("test_id","test_ingredient_id","test_recipe_id",IngredientTypeEnums.CHEESE,UnitTypeEnums.KG,400.0);
+        UpdateIngredientListItemInput updateIngredientListItemInput = new UpdateIngredientListItemInput("test_id", "test_ingredient_id", "test_recipe_id", IngredientTypeEnums.CHEESE, UnitTypeEnums.KG, 400.0);
 
         when(ingredientListItemRepositoryMock.findById(updateIngredientListItemInput.getIngredientListItemId())).thenReturn(Optional.empty());
 
@@ -192,6 +192,43 @@ class IngredientListItemServiceTest {
 
         assertEquals("Ingredient list item not found", exception.getMessage());
 
+    }
+
+    @DisplayName("deleteIngredientListItem should true when given id is exist and isDeleted false")
+    @Test
+    void testDeleteIngredientListItem_success() {
+        String test_id = "test_id";
+
+        when(ingredientListItemRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(ingredientListItemMock));
+
+        boolean result = ingredientListItemServiceMock.deleteIngredientListItem(test_id);
+
+        assertTrue(result);
+    }
+
+    @DisplayName("deleteIngredientListItem should throw custom exception ingredientListItemNotFound when given id does not exist")
+    @Test
+    void testDeleteIngredientListItem_ingredientListItemNotFound() {
+        String test_id = "test_id";
+
+        when(ingredientListItemRepositoryMock.findById(test_id)).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class, () -> ingredientListItemServiceMock.deleteIngredientListItem(test_id));
+
+        assertEquals("Ingredient list item not found", exception.getMessage());
+    }
+
+    @DisplayName("deleteIngredientListItem should throw custom exception ingredientListItemIsAlreadyDeleted when given id is exist but isDeletedTrue")
+    @Test
+    void testDeleteIngredientListItem_ingredientListItemIsAlreadyDeleted() {
+        String test_id = "test_id";
+        ingredientListItemMock.setDeleted(true);
+
+        when(ingredientListItemRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(ingredientListItemMock));
+
+        CustomException exception = assertThrows(CustomException.class, () -> ingredientListItemServiceMock.deleteIngredientListItem(test_id));
+
+        assertEquals("Ingredient list item is already deleted", exception.getMessage());
     }
 
 
