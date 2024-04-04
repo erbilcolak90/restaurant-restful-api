@@ -8,6 +8,7 @@ import com.example.restaurantrestful.repository.elastic.IngredientListItemReposi
 import com.example.restaurantrestful.repository.elastic.RecipeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -37,4 +38,9 @@ public class RecipeService {
         Ingredient dbIngredient = ingredientService.getIngredientById(ingredientId);
         return recipeRepository.findByIngredientId(dbIngredient.getId());
     }
+
+    public Recipe getRecipeByName(String name){
+        return recipeRepository.findByName(name.toLowerCase()).orElseThrow(CustomException::recipeNotFound);
+    }
+
 }
