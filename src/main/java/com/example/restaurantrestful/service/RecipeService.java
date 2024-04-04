@@ -1,20 +1,14 @@
 package com.example.restaurantrestful.service;
 
 import com.example.restaurantrestful.dto.inputs.recipe.CreateRecipeInput;
-import com.example.restaurantrestful.dto.inputs.stock.GetStocksByIngredientIdInput;
 import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.entity.Recipe;
-import com.example.restaurantrestful.entity.Stock;
 import com.example.restaurantrestful.exception.CustomException;
-import com.example.restaurantrestful.repository.elastic.IngredientListItemRepository;
 import com.example.restaurantrestful.repository.elastic.RecipeRepository;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RecipeService {

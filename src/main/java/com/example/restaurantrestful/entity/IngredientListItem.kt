@@ -11,6 +11,8 @@ data class IngredientListItem @JvmOverloads constructor(
         @Id
         var id: String,
         @Field(type = FieldType.Keyword)
+        var recipeId: String,
+        @Field(type = FieldType.Keyword)
         var ingredientId: String,
         @Field(type = FieldType.Keyword)
         var ingredientType: String,
