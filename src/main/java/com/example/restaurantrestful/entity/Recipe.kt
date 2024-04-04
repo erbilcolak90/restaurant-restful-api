@@ -13,6 +13,6 @@ data class Recipe @JvmOverloads constructor(
         @Field(type = FieldType.Keyword)
         var name: String,
         @Field(type = FieldType.Nested)
-        var ingredientListItem: MutableList<IngredientListItem>
+        var ingredientListItem: MutableList<IngredientListItem>?
 
 ):BaseEntity()

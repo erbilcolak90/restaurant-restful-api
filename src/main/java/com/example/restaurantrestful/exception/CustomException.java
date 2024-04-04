@@ -35,4 +35,8 @@ public class CustomException extends RuntimeException {
     public static CustomException recipeNotFound(){
         return new CustomException("Recipe not found");
     }
+
+    public static CustomException recipeNameIsAlreadyExist(){
+        return new CustomException("Recipe name is already exist");
+    }
 }

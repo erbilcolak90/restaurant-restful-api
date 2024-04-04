@@ -1,5 +1,7 @@
 package com.example.restaurantrestful.service;
 
+import com.example.restaurantrestful.dto.inputs.recipe.CreateRecipeInput;
+import com.example.restaurantrestful.dto.inputs.stock.GetStocksByIngredientIdInput;
 import com.example.restaurantrestful.entity.Ingredient;
 import com.example.restaurantrestful.entity.Recipe;
 import com.example.restaurantrestful.entity.Stock;
@@ -10,7 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RecipeService {
@@ -30,17 +34,35 @@ public class RecipeService {
         this.ingredientService = ingredientService;
     }
 
-    public Recipe getRecipeById(String id){
+    public Recipe getRecipeById(String id) {
         return recipeRepository.findById(id).orElseThrow(CustomException::recipeNotFound);
     }
 
-    public List<Recipe> getRecipeByContainsIngredient(String ingredientId){
+    public List<Recipe> getRecipeByContainsIngredient(String ingredientId) {
         Ingredient dbIngredient = ingredientService.getIngredientById(ingredientId);
         return recipeRepository.findByIngredientId(dbIngredient.getId());
     }
 
-    public Recipe getRecipeByName(String name){
+    public Recipe getRecipeByName(String name) {
         return recipeRepository.findByName(name.toLowerCase()).orElseThrow(CustomException::recipeNotFound);
+    }
+
+    @Transactional
+    public Recipe createRecipe(CreateRecipeInput createRecipeInput) {
+        boolean dbRecipeIsExist = recipeRepository.findByName(createRecipeInput.getName().toLowerCase()).isPresent();
+
+        if (dbRecipeIsExist) {
+            throw CustomException.recipeNameIsAlreadyExist();
+        } else {
+
+            Recipe newRecipe = new Recipe();
+            newRecipe.setName(createRecipeInput.getName().toLowerCase());
+            newRecipe.setIngredientListItem(null);
+
+            recipeRepository.save(newRecipe);
+            return newRecipe;
+        }
+
     }
 
 }
