@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IngredientListItemRepository extends ElasticsearchRepository<IngredientListItem, String> {
 
-    @Query("{\"bool\": {\"must\": [{\"match\": {\"recipeId\": \"?0\"}}]}}")
+    @Query("{\"bool\": {\"must\": [{\"match\": {\"recipeId\": \"?0\"}},{\"match\": {\"isDeleted\": \"false\"}]}}")
     List<IngredientListItem> findIngredientListItemsByContainsRecipeId(String recipeId);
 
     @Query("{\"bool\": {\"must\": {\"match\": {\"id\": \"?0\"}, {\"match\": {\"isDeleted\": \"false\"}}}}")

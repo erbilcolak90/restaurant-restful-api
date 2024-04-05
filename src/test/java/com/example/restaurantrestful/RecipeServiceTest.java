@@ -152,7 +152,7 @@ class RecipeServiceTest {
     @Test
     void testCreateRecipe_success() {
         CreateRecipeInput createRecipeInput = new CreateRecipeInput("test_name");
-        recipeMock.setIngredientListItem(null);
+        recipeMock.setIngredientListItem(new ArrayList<>());
 
         when(recipeRepositoryMock.findByName(createRecipeInput.getName().toLowerCase())).thenReturn(Optional.empty());
         when(recipeRepositoryMock.save(any(Recipe.class))).thenReturn(recipeMock);
@@ -176,5 +176,33 @@ class RecipeServiceTest {
         assertEquals("Recipe name is already exist", exception.getMessage());
     }
 
+    @DisplayName("addIngredientsToRecipe should return recipe when given recipe id is exist")
+    @Test
+    void testAddIngredientsToRecipe_success(){
+        String test_id = "test_id";
+        List<IngredientListItem> newIngredientListItem = new ArrayList<>();
+        newIngredientListItem.add(new IngredientListItem("test_id_1","test_id","test_ingredient_id_1",IngredientTypeEnums.CHEESE.toString(),UnitTypeEnums.KG.toString(),4.0));
+        newIngredientListItem.add(new IngredientListItem("test_id_2","test_id","test_ingredient_id_2",IngredientTypeEnums.BAKERY.toString(),UnitTypeEnums.KG.toString(),4.0));
+
+        when(recipeRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(recipeMock));
+        when(ingredientListItemServiceMock.getIngredientListItemsByRecipeId(test_id)).thenReturn(newIngredientListItem);
+        when(recipeRepositoryMock.save(any(Recipe.class))).thenReturn(recipeMock);
+
+        Recipe result = recipeServiceMock.addIngredientsToRecipe(test_id);
+
+        assertEquals(2,result.getIngredientListItem().size());
+    }
+
+    @DisplayName("addIngredientsToRecipe should throw custom exception recipeNotFound when given recipe id does not exist")
+    @Test
+    void testAddIngredientsToRecipe_recipeNotFound(){
+        String test_id = "test_id";
+
+        when(recipeRepositoryMock.findById(test_id)).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class, () -> recipeServiceMock.addIngredientsToRecipe(test_id));
+
+        assertEquals("Recipe not found", exception.getMessage());
+    }
 
 }
