@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -206,6 +207,22 @@ class RecipeServiceTest {
         assertEquals("Recipe not found", exception.getMessage());
     }
 
+    @DisplayName("getRecipeIdsByContainsIngredient should return list string when given ingredient id is exist")
+    @Test
+    void testGetRecipeIdsByContainsIngredient_success(){
+        String test_ingredient_id = "test_ingredient_id";
+        List<String> recipeIdsList= new ArrayList<>();
+        recipeIdsList.add(recipeMock.getId());
+        Ingredient dbIngredient = new Ingredient("test_ingredient_id_1", "test_name", IngredientTypeEnums.BAKERY, UnitTypeEnums.KG);
+
+        when(ingredientServiceMock.getIngredientById(test_ingredient_id)).thenReturn(dbIngredient);
+        when(recipeRepositoryMock.findRecipeIdsByIngredientId(dbIngredient.getId())).thenReturn(recipeIdsList);
+
+        List<String> result = recipeServiceMock.getRecipeIdsByContainsIngredient(test_ingredient_id);
+
+        assertNotNull(result);
+        assertEquals(1,result.size());
+    }
     @AfterEach
     void tearDown() {
 

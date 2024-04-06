@@ -14,4 +14,7 @@ public interface RecipeRepository extends ElasticsearchRepository<Recipe, String
 
     @Query("{\"bool\":{\"must\": {\"match\": {\"name\": \"?0\"}}}}")
     Optional<Recipe> findByName(String name);
+
+    @Query("{\"bool\": {\"must\": [{\"nested\": {\"path\": \"ingredientListItem\",\"query\": {\"match\": {\"ingredientListItem.ingredientId\": \"?0\"}}}}]}, \"_source\": [\"id\"]}")
+    List<String> findRecipeIdsByIngredientId(String ingredientId);
 }

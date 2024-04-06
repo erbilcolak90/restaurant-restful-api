@@ -1,9 +1,14 @@
 package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.entity.Food;
+import com.example.restaurantrestful.entity.Ingredient;
+import com.example.restaurantrestful.entity.Recipe;
+import com.example.restaurantrestful.enums.IngredientTypeEnums;
+import com.example.restaurantrestful.enums.UnitTypeEnums;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.jpa.FoodRepository;
 import com.example.restaurantrestful.service.FoodService;
+import com.example.restaurantrestful.service.IngredientService;
 import com.example.restaurantrestful.service.RecipeService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +19,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,7 +38,12 @@ class FoodServiceTest {
     @Mock
     private RecipeService recipeServiceMock;
 
+    @Mock
+    private IngredientService ingredientServiceMock;
+
     private Food foodMock;
+
+    private Ingredient ingredientMock;
 
     @BeforeEach
     void setUp() {
@@ -89,6 +101,23 @@ class FoodServiceTest {
         CustomException exception = assertThrows(CustomException.class,()->foodServiceMock.getFoodByName(test_name));
 
         assertEquals("Food not found",exception.getMessage());
+    }
+
+    @DisplayName("getFoodsByContainsIngredient return list foot when given ingredient name is exist and recipe contains ingredient")
+    @Test
+    void testGetFoodsByContainsIngredient_success(){
+        String test_name = "test_name";
+        ingredientMock = new Ingredient("id", "test_ingredient_name", IngredientTypeEnums.BAKERY, UnitTypeEnums.KG);
+        List<String> recipeIds= new ArrayList<>();
+        recipeIds.add("test_recipe_id");
+        when(ingredientServiceMock.getIngredientByName(test_name)).thenReturn(ingredientMock);
+        when(recipeServiceMock.getRecipeIdsByContainsIngredient(ingredientMock.getId())).thenReturn(recipeIds);
+        when(foodRepositoryMock.findByRecipeId(anyString())).thenReturn(foodMock);
+
+        List<Food> result = foodServiceMock.getFoodsByContainsIngredient(test_name);
+
+        assertNotNull(result);
+        assertEquals(1,result.size());
     }
 
 
