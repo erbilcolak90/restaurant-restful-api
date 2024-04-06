@@ -18,6 +18,7 @@ data class Food @JvmOverloads constructor(
         @Column(name = "name")
         var name: String,
         @Column(name = "recipeId")
-        var recipeId: String
-        
+        var recipeId: String,
+        @Column(name = "is_ready")
+        var isReady: Boolean
 ) : BaseEntity()
