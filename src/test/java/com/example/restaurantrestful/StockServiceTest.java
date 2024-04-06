@@ -13,6 +13,7 @@ import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.elastic.StockRepository;
 import com.example.restaurantrestful.service.IngredientService;
 import com.example.restaurantrestful.service.StockService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -287,4 +288,8 @@ class StockServiceTest {
 
     }
 
+    @AfterEach
+    void tearDown() {
+
+    }
 }
