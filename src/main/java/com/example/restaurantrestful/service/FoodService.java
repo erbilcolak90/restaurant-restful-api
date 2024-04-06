@@ -20,4 +20,8 @@ public class FoodService {
     public Food getFoodById(String id){
         return foodRepository.findById(id).orElseThrow(CustomException::foodNotFound);
     }
+
+    public Food getFoodByName(String name){
+        return foodRepository.findByName(name).orElseThrow(CustomException::foodNotFound);
+    }
 }

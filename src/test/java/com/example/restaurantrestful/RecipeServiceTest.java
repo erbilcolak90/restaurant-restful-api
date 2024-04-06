@@ -12,6 +12,7 @@ import com.example.restaurantrestful.service.IngredientListItemService;
 import com.example.restaurantrestful.service.IngredientService;
 import com.example.restaurantrestful.service.RecipeService;
 import com.example.restaurantrestful.service.StockService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -205,4 +206,8 @@ class RecipeServiceTest {
         assertEquals("Recipe not found", exception.getMessage());
     }
 
+    @AfterEach
+    void tearDown() {
+
+    }
 }

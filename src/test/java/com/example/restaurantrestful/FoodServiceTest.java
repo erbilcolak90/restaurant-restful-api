@@ -5,6 +5,7 @@ import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.jpa.FoodRepository;
 import com.example.restaurantrestful.service.FoodService;
 import com.example.restaurantrestful.service.RecipeService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,6 +65,36 @@ class FoodServiceTest {
         CustomException exception = assertThrows(CustomException.class,()->foodServiceMock.getFoodById(test_id));
 
         assertEquals("Food not found",exception.getMessage());
+    }
+
+    @DisplayName("getFoodByName should return valid Food when given name is exist")
+    @Test
+    void testGetFoodByName_success() {
+        String test_name = "test_name";
+
+        when(foodRepositoryMock.findByName(test_name)).thenReturn(Optional.ofNullable(foodMock));
+
+        Food result = foodServiceMock.getFoodByName(test_name);
+
+        assertNotNull(result);
+    }
+
+    @DisplayName("getFoodByName should throw custom exception foodNotFound when given name does not exist")
+    @Test
+    void testGetFoodByName_foodNotFound() {
+        String test_name = "test_name";
+
+        when(foodRepositoryMock.findByName(test_name)).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class,()->foodServiceMock.getFoodByName(test_name));
+
+        assertEquals("Food not found",exception.getMessage());
+    }
+
+
+    @AfterEach
+    void tearDown() {
+
     }
 
 

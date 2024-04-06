@@ -12,6 +12,7 @@ import com.example.restaurantrestful.repository.elastic.IngredientListItemReposi
 import com.example.restaurantrestful.repository.elastic.RecipeRepository;
 import com.example.restaurantrestful.repository.jpa.IngredientRepository;
 import com.example.restaurantrestful.service.IngredientListItemService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -231,5 +232,9 @@ class IngredientListItemServiceTest {
         assertEquals("Ingredient list item is already deleted", exception.getMessage());
     }
 
+    @AfterEach
+    void tearDown() {
+
+    }
 
 }
