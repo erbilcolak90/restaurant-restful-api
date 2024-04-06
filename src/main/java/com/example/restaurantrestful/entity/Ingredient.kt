@@ -20,6 +20,6 @@ data class Ingredient @JvmOverloads constructor(
         var type: IngredientTypeEnums,
         @Column(name = "unit")
         @Enumerated(EnumType.STRING)
-        var unit : UnitTypeEnums,
+        var unit : UnitTypeEnums
 ): BaseEntity()
 
