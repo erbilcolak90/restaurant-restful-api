@@ -24,6 +24,7 @@ public class RecipeService {
 
     private final IngredientService ingredientService;
 
+
     public RecipeService(RecipeRepository recipeRepository, IngredientListItemService ingredientListItemService, StockService stockService, IngredientService ingredientService) {
         this.recipeRepository = recipeRepository;
         this.ingredientListItemService = ingredientListItemService;
@@ -71,6 +72,11 @@ public class RecipeService {
         recipeRepository.save(dbRecipe);
 
         return dbRecipe;
+    }
+
+    public List<String> getRecipeIdsByContainsIngredient(String ingredientId){
+        Ingredient dbIngredient = ingredientService.getIngredientById(ingredientId);
+        return recipeRepository.findRecipeIdsByIngredientId(dbIngredient.getId());
     }
 
 }
