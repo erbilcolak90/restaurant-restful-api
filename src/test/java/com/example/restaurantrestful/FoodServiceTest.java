@@ -112,12 +112,66 @@ class FoodServiceTest {
         recipeIds.add("test_recipe_id");
         when(ingredientServiceMock.getIngredientByName(test_name)).thenReturn(ingredientMock);
         when(recipeServiceMock.getRecipeIdsByContainsIngredient(ingredientMock.getId())).thenReturn(recipeIds);
-        when(foodRepositoryMock.findByRecipeId(anyString())).thenReturn(foodMock);
+        when(foodRepositoryMock.findByRecipeId(anyString())).thenReturn(Optional.ofNullable(foodMock));
 
         List<Food> result = foodServiceMock.getFoodsByContainsIngredient(test_name);
 
         assertNotNull(result);
         assertEquals(1,result.size());
+    }
+
+    @DisplayName("getFoodsByContainsIngredient throw custom exception foodNotFound when given ingredient name is exist and recipe contains ingredient but food not found with recipe Id")
+    @Test
+    void testGetFoodsByContainsIngredient_foodNotFound(){
+        String test_name = "test_name";
+        ingredientMock = new Ingredient("id", "test_ingredient_name", IngredientTypeEnums.BAKERY, UnitTypeEnums.KG);
+        List<String> recipeIds= new ArrayList<>();
+        recipeIds.add("test_recipe_id");
+        when(ingredientServiceMock.getIngredientByName(test_name)).thenReturn(ingredientMock);
+        when(recipeServiceMock.getRecipeIdsByContainsIngredient(ingredientMock.getId())).thenReturn(recipeIds);
+        when(foodRepositoryMock.findByRecipeId(anyString())).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class,()->foodServiceMock.getFoodsByContainsIngredient(test_name));
+
+        assertEquals("Food not found",exception.getMessage());
+    }
+
+    @DisplayName("updateFoodStatus should true when given food id is exist and is ready already false")
+    @Test
+    void testUpdateFoodStatus_success(){
+        String test_id = "test_id";
+
+        when(foodRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(foodMock));
+
+        when(foodRepositoryMock.save(any(Food.class))).thenReturn(foodMock);
+
+        boolean result = foodServiceMock.updateFoodStatus(test_id);
+
+        assertTrue(result);
+    }
+
+    @DisplayName("updateFoodStatus should false when given food id is exist and is ready already true")
+    @Test
+    void testUpdateFoodStatus_false(){
+        String test_id = "test_id";
+        foodMock.setReady(true);
+        when(foodRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(foodMock));
+
+        boolean result = foodServiceMock.updateFoodStatus(test_id);
+
+        assertFalse(result);
+    }
+
+    @DisplayName("updateFoodStatus should throw custom exception foodNotFound when given food id does not exist")
+    @Test
+    void testUpdateFoodStatus_foodNotFound(){
+        String test_id = "test_id";
+
+        when(foodRepositoryMock.findById(test_id)).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class,()-> foodServiceMock.updateFoodStatus(test_id));
+
+        assertEquals("Food not found",exception.getMessage());
     }
 
 
