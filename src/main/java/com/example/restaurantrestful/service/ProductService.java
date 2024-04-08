@@ -20,4 +20,8 @@ public class ProductService {
     public Product getProductById(String id){
         return productRepository.findById(id).orElseThrow(CustomException::productNotFound);
     }
+
+    public Product getProductByName(String name){
+        return productRepository.findByName(name.toLowerCase()).orElseThrow(CustomException::productNotFound);
+    }
 }
