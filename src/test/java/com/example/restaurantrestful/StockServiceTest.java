@@ -288,6 +288,29 @@ class StockServiceTest {
 
     }
 
+    @DisplayName("findNearestExpirationStockByItemId return valid stock when given ingredientId is exist")
+    @Test
+    void testFindNearestExpirationStockByItemId_success(){
+        String test_id = "test_id";
+
+        when(stockRepositoryMock.findNearestExpirationStockByItemId(test_id)).thenReturn(Optional.ofNullable(stockMock));
+
+        Stock result = stockServiceMock.findNearestExpirationStockByItemId(test_id);
+
+        assertNotNull(result);
+    }
+
+    @DisplayName("findNearestExpirationStockByItemId throw custom exception stockNotFound when given ingredientId does not exist")
+    @Test
+    void testFindNearestExpirationStockByItemId_stockNotFound(){
+        String test_id = "test_id";
+
+        when(stockRepositoryMock.findNearestExpirationStockByItemId(test_id)).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()->stockServiceMock.findNearestExpirationStockByItemId(test_id));
+
+    }
+
     @AfterEach
     void tearDown() {
 
