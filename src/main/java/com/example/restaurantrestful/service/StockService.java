@@ -110,6 +110,7 @@ public class StockService {
         return StockPayload.convert(dbStock);
     }
 
+    @Transactional
     public boolean deleteStockById(String id) {
         Stock dbStock = stockRepository.findById(id).orElseThrow(CustomException::stockNotFound);
 
@@ -119,8 +120,12 @@ public class StockService {
         dbStock.setDeleted(true);
         dbStock.setUpdateDate(new Date());
         stockRepository.save(dbStock);
-
         return true;
     }
 
+    public Stock  findNearestExpirationStockByItemId(String ingredientId) {
+        Stock dbStock = stockRepository.findNearestExpirationStockByItemId(ingredientId).orElseThrow(CustomException::stockNotFound);
+
+        return dbStock;
+    }
 }
