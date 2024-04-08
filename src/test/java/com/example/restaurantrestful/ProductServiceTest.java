@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -89,5 +91,21 @@ public class ProductServiceTest {
 
         assertThrows(CustomException.class,()->productService.getProductByName(test_name));
 
+    }
+
+    @DisplayName("getProductsByStatus should return list product when given with status ")
+    @Test
+    void testGetProductsByStatus_success(){
+        ProductStatusEnums status = ProductStatusEnums.WAITING;
+        Product newProduct = new Product("test_id_2","test_name_2","test_food_id_2","test_thumbnailId",100.0,ProductStatusEnums.WAITING);
+        List<Product> productList = new ArrayList<>();
+        productList.add(newProduct);
+        productList.add(productMock);
+
+        when(productRepositoryMock.findAllByStatusOrderByUpdateDateDesc(status)).thenReturn(productList);
+
+        List<Product> result = productService.getAllProductsByStatus(status);
+
+        assertEquals(2,result.size());
     }
 }
