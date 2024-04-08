@@ -55,4 +55,8 @@ public class CustomException extends RuntimeException {
     public static CustomException foodIsReadyException() {
         return new CustomException("Food is already ready");
     }
+
+    public static CustomException productNotFound() {
+        return new CustomException("Product not found");
+    }
 }
