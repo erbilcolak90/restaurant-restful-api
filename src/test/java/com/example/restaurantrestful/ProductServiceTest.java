@@ -67,4 +67,27 @@ public class ProductServiceTest {
         assertThrows(CustomException.class,()->productService.getProductById(test_id));
 
     }
+
+    @DisplayName("getProductByName should return valid product when given name is exist")
+    @Test
+    void testGetProductByName_success(){
+        String test_name = "test_name";
+
+        when(productRepositoryMock.findByName(test_name)).thenReturn(Optional.ofNullable(productMock));
+
+        Product result = productService.getProductById(test_name);
+
+        assertNotNull(result);
+    }
+
+    @DisplayName("getProductByName should throw custom exception productNotFound when given name does not exist")
+    @Test
+    void testGetProductByName_productNotFound(){
+        String test_name = "test_name";
+
+        when(productRepositoryMock.findByName(test_name)).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()->productService.getProductByName(test_name));
+
+    }
 }
