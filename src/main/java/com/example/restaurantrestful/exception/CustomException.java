@@ -1,5 +1,7 @@
 package com.example.restaurantrestful.exception;
 
+import com.example.restaurantrestful.entity.Product;
+
 import java.util.function.Supplier;
 
 public class CustomException extends RuntimeException {
@@ -58,5 +60,9 @@ public class CustomException extends RuntimeException {
 
     public static CustomException productNotFound() {
         return new CustomException("Product not found");
+    }
+
+    public static CustomException productNameIsAlreadyExist() {
+        return new CustomException("Product name is already exist");
     }
 }
