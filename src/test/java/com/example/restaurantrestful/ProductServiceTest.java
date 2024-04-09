@@ -3,6 +3,7 @@ package com.example.restaurantrestful;
 import com.example.restaurantrestful.dto.inputs.product.CreateProductInput;
 import com.example.restaurantrestful.dto.inputs.product.UpdateProductPriceInput;
 import com.example.restaurantrestful.dto.inputs.product.UpdateProductStatusInput;
+import com.example.restaurantrestful.dto.inputs.product.UpdateProductThumbnailInput;
 import com.example.restaurantrestful.entity.Food;
 import com.example.restaurantrestful.entity.Product;
 import com.example.restaurantrestful.enums.ProductStatusEnums;
@@ -236,6 +237,42 @@ public class ProductServiceTest {
         CustomException exception = assertThrows(CustomException.class,()->productService.updateProductStatus(updateProductStatusInput));
 
         assertEquals("Product status is same with given input status",exception.getMessage());
+
+    }
+
+    @DisplayName("updateProductThumbnail should return product when given id in exist and thumbnail id is not same with exist product at updateProductThumbnailInput")
+    @Test
+    void testUpdateProductThumbnail_success(){
+        UpdateProductThumbnailInput updateProductThumbnailInput = new UpdateProductThumbnailInput("test_product_id","test_thumbnail_id2");
+
+        when(productRepositoryMock.findById(updateProductThumbnailInput.getId())).thenReturn(Optional.ofNullable(productMock));
+
+        Product result = productService.updateProductThumbnail(updateProductThumbnailInput);
+
+        assertEquals("test_thumbnail_id2",result.getThumbnailId());
+    }
+
+    @DisplayName("updateProductThumbnail should throw custom exception productNotFound when given id does not exist at updateProductThumbnailInput")
+    @Test
+    void testUpdateProductThumbnail_productNotFound(){
+        UpdateProductThumbnailInput updateProductThumbnailInput = new UpdateProductThumbnailInput("test_product_id","test_thumbnail_id");
+
+        when(productRepositoryMock.findById(updateProductThumbnailInput.getId())).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()->productService.updateProductThumbnail(updateProductThumbnailInput));
+
+    }
+
+    @DisplayName("updateProductThumbnail should throw custom exception productThumbnailIdSameWithInput exception when given id is exist but thumbnail id  is same with exist product thumbnailId at updateProductThumbnailInput")
+    @Test
+    void testUpdateProductThumbnail_productThumbnailIdSameWithInput(){
+        UpdateProductThumbnailInput updateProductThumbnailInput = new UpdateProductThumbnailInput("test_product_id","test_thumbnail_id");
+
+        when(productRepositoryMock.findById(updateProductThumbnailInput.getId())).thenReturn(Optional.ofNullable(productMock));
+
+        CustomException exception = assertThrows(CustomException.class,()->productService.updateProductThumbnail(updateProductThumbnailInput));
+
+        assertEquals("Thumbnail id is same with given input",exception.getMessage());
 
     }
 

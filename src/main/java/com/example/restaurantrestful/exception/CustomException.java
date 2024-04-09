@@ -73,4 +73,8 @@ public class CustomException extends RuntimeException {
     public static CustomException productStatusIsSameWithInput() {
         return new CustomException("Product status is same with given input status");
     }
+
+    public static CustomException productThumbnailIdSameWithInput() {
+        return new CustomException("Thumbnail id is same with given input");
+    }
 }
