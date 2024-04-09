@@ -66,6 +66,28 @@ public class OrderProductTest {
         assertThrows(CustomException.class,()-> orderProductServiceMock.getOrderProductById(test_id));
     }
 
+    @DisplayName("getOrderProductByProductId should return valid orderProductPayload when given productId is exist")
+    @Test
+    void testGetOrderProductByProductId_success(){
+        String test_product_id = "test_product_id";
+
+        when(orderProductRepositoryMock.findByProductId(test_product_id)).thenReturn(Optional.ofNullable(orderProductMock));
+
+        OrderProductPayload result = orderProductServiceMock.getOrderProductByProductId(test_product_id);
+
+        assertNotNull(result);
+    }
+
+    @DisplayName("getOrderProductByProductId should throw custom exception orderProductNotFound when given productId does not exist")
+    @Test
+    void testGetOrderProductByProductId_orderProductNotFound(){
+        String test_product_id = "test_product_id";
+
+        when(orderProductRepositoryMock.findByProductId(test_product_id)).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()-> orderProductServiceMock.getOrderProductByProductId(test_product_id));
+    }
+
 
     @AfterEach
     void tearDown() {

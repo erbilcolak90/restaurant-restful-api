@@ -21,4 +21,9 @@ public class OrderProductService {
         OrderProduct dbOrderProduct = orderProductRepository.findById(id).orElseThrow(CustomException::orderProductNotFound);
         return OrderProductPayload.convert(dbOrderProduct);
     }
+
+    public OrderProductPayload getOrderProductByProductId(String productId){
+        OrderProduct dbOrderProduct = orderProductRepository.findByProductId(productId).orElseThrow(CustomException::orderProductNotFound);
+        return OrderProductPayload.convert(dbOrderProduct);
+    }
 }
