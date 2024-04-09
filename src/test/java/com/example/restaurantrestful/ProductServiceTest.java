@@ -2,6 +2,7 @@ package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.dto.inputs.product.CreateProductInput;
 import com.example.restaurantrestful.dto.inputs.product.UpdateProductPriceInput;
+import com.example.restaurantrestful.dto.inputs.product.UpdateProductStatusInput;
 import com.example.restaurantrestful.entity.Food;
 import com.example.restaurantrestful.entity.Product;
 import com.example.restaurantrestful.enums.ProductStatusEnums;
@@ -171,7 +172,7 @@ public class ProductServiceTest {
     @DisplayName("updateProductPrice should return product when given id in exist and price greater than zero at updateProductPriceInput")
     @Test
     void testUpdateProductPrice_success(){
-        UpdateProductPriceInput updateProductPriceInput = new UpdateProductPriceInput("test_product_price",10.0);
+        UpdateProductPriceInput updateProductPriceInput = new UpdateProductPriceInput("test_product_id",10.0);
 
         when(productRepositoryMock.findById(updateProductPriceInput.getId())).thenReturn(Optional.ofNullable(productMock));
 
@@ -183,7 +184,7 @@ public class ProductServiceTest {
     @DisplayName("updateProductPrice should throw productNotFound exception when given id does not exist and price greater than zero at updateProductPriceInput")
     @Test
     void testUpdateProductPrice_productNotFound(){
-        UpdateProductPriceInput updateProductPriceInput = new UpdateProductPriceInput("test_product_price",10.0);
+        UpdateProductPriceInput updateProductPriceInput = new UpdateProductPriceInput("test_product_id",10.0);
 
         when(productRepositoryMock.findById(updateProductPriceInput.getId())).thenReturn(Optional.empty());
 
@@ -194,11 +195,48 @@ public class ProductServiceTest {
     @DisplayName("updateProductPrice should throw productPriceLimit exception when given id exist and price  equals or less than zero at updateProductPriceInput")
     @Test
     void testUpdateProductPrice_productPriceLimit(){
-        UpdateProductPriceInput updateProductPriceInput = new UpdateProductPriceInput("test_product_price",0.0);
+        UpdateProductPriceInput updateProductPriceInput = new UpdateProductPriceInput("test_product_id",0.0);
 
         when(productRepositoryMock.findById(updateProductPriceInput.getId())).thenReturn(Optional.ofNullable(productMock));
 
         assertThrows(CustomException.class,()->productService.updateProductPrice(updateProductPriceInput));
 
     }
+
+    @DisplayName("updateProductStatus should return product when given id in exist and status is not same with exist product at updateProductStatusInput")
+    @Test
+    void testUpdateProductStatus_success(){
+        UpdateProductStatusInput updateProductStatusInput = new UpdateProductStatusInput("test_product_id",ProductStatusEnums.READY);
+
+        when(productRepositoryMock.findById(updateProductStatusInput.getId())).thenReturn(Optional.ofNullable(productMock));
+
+        Product result = productService.updateProductStatus(updateProductStatusInput);
+
+        assertEquals(ProductStatusEnums.READY,result.getStatus());
+    }
+
+    @DisplayName("updateProductStatus should throw custom exception productNotFound when given id does not exist updateProductStatusInput")
+    @Test
+    void testUpdateProductStatus_productNotFound(){
+        UpdateProductStatusInput updateProductStatusInput = new UpdateProductStatusInput("test_product_id",ProductStatusEnums.READY);
+
+        when(productRepositoryMock.findById(updateProductStatusInput.getId())).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()->productService.updateProductStatus(updateProductStatusInput));
+
+    }
+
+    @DisplayName("updateProductStatus should throw custom exception productStatusIsSameWithInput exception when given id is exist but status is same with exist product status updateProductStatusInput")
+    @Test
+    void testUpdateProductStatus_productStatusIsSameWithInput(){
+        UpdateProductStatusInput updateProductStatusInput = new UpdateProductStatusInput("test_product_id",ProductStatusEnums.WAITING);
+
+        when(productRepositoryMock.findById(updateProductStatusInput.getId())).thenReturn(Optional.ofNullable(productMock));
+
+        CustomException exception = assertThrows(CustomException.class,()->productService.updateProductStatus(updateProductStatusInput));
+
+        assertEquals("Product status is same with given input status",exception.getMessage());
+
+    }
+
 }

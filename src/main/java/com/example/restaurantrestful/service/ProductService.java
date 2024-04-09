@@ -2,6 +2,7 @@ package com.example.restaurantrestful.service;
 
 import com.example.restaurantrestful.dto.inputs.product.CreateProductInput;
 import com.example.restaurantrestful.dto.inputs.product.UpdateProductPriceInput;
+import com.example.restaurantrestful.dto.inputs.product.UpdateProductStatusInput;
 import com.example.restaurantrestful.entity.Food;
 import com.example.restaurantrestful.entity.Product;
 import com.example.restaurantrestful.enums.ProductStatusEnums;
@@ -75,6 +76,21 @@ public class ProductService {
             throw CustomException.productPriceLimitException();
         }
 
+    }
+
+    @Transactional
+    public Product updateProductStatus(UpdateProductStatusInput updateProductStatusInput){
+        Product dbProduct = productRepository.findById(updateProductStatusInput.getId()).orElseThrow(CustomException::productNotFound);
+
+        if(!dbProduct.getStatus().equals(updateProductStatusInput.getStatus())){
+            dbProduct.setStatus(updateProductStatusInput.getStatus());
+            dbProduct.setUpdateDate(new Date());
+            productRepository.save(dbProduct);
+
+            return dbProduct;
+        }else{
+            throw CustomException.productStatusIsSameWithInput();
+        }
     }
 
     @Async
