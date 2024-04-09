@@ -77,4 +77,8 @@ public class CustomException extends RuntimeException {
     public static CustomException productThumbnailIdSameWithInput() {
         return new CustomException("Thumbnail id is same with given input");
     }
+
+    public static CustomException orderProductNotFound() {
+        return new CustomException("OrderProduct not found");
+    }
 }
