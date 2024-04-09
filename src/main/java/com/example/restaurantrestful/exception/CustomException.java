@@ -65,4 +65,8 @@ public class CustomException extends RuntimeException {
     public static CustomException productNameIsAlreadyExist() {
         return new CustomException("Product name is already exist");
     }
+
+    public static CustomException productPriceLimitException() {
+        return new CustomException("Product price must be greater than 0.0");
+    }
 }
