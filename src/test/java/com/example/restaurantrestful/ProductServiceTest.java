@@ -1,6 +1,7 @@
 package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.dto.inputs.product.CreateProductInput;
+import com.example.restaurantrestful.dto.inputs.product.UpdateProductPriceInput;
 import com.example.restaurantrestful.entity.Food;
 import com.example.restaurantrestful.entity.Product;
 import com.example.restaurantrestful.enums.ProductStatusEnums;
@@ -165,5 +166,39 @@ public class ProductServiceTest {
         assertThrows(RuntimeException.class, () -> {
             productService.makeFoodAsync(foodName);
         });
+    }
+
+    @DisplayName("updateProductPrice should return product when given id in exist and price greater than zero at updateProductPriceInput")
+    @Test
+    void testUpdateProductPrice_success(){
+        UpdateProductPriceInput updateProductPriceInput = new UpdateProductPriceInput("test_product_price",10.0);
+
+        when(productRepositoryMock.findById(updateProductPriceInput.getId())).thenReturn(Optional.ofNullable(productMock));
+
+        Product result = productService.updateProductPrice(updateProductPriceInput);
+
+        assertEquals(10.0,result.getPrice());
+    }
+
+    @DisplayName("updateProductPrice should throw productNotFound exception when given id does not exist and price greater than zero at updateProductPriceInput")
+    @Test
+    void testUpdateProductPrice_productNotFound(){
+        UpdateProductPriceInput updateProductPriceInput = new UpdateProductPriceInput("test_product_price",10.0);
+
+        when(productRepositoryMock.findById(updateProductPriceInput.getId())).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()->productService.updateProductPrice(updateProductPriceInput));
+
+    }
+
+    @DisplayName("updateProductPrice should throw productPriceLimit exception when given id exist and price  equals or less than zero at updateProductPriceInput")
+    @Test
+    void testUpdateProductPrice_productPriceLimit(){
+        UpdateProductPriceInput updateProductPriceInput = new UpdateProductPriceInput("test_product_price",0.0);
+
+        when(productRepositoryMock.findById(updateProductPriceInput.getId())).thenReturn(Optional.ofNullable(productMock));
+
+        assertThrows(CustomException.class,()->productService.updateProductPrice(updateProductPriceInput));
+
     }
 }
