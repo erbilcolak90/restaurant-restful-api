@@ -1,10 +1,15 @@
 package com.example.restaurantrestful.service;
 
+import com.example.restaurantrestful.dto.inputs.product.CreateProductInput;
+import com.example.restaurantrestful.entity.Food;
 import com.example.restaurantrestful.entity.Product;
 import com.example.restaurantrestful.enums.ProductStatusEnums;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.jpa.ProductRepository;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,15 +25,42 @@ public class ProductService {
         this.foodService = foodService;
     }
 
-    public Product getProductById(String id){
+    public Product getProductById(String id) {
         return productRepository.findById(id).orElseThrow(CustomException::productNotFound);
     }
 
-    public Product getProductByName(String name){
+    public Product getProductByName(String name) {
         return productRepository.findByName(name.toLowerCase()).orElseThrow(CustomException::productNotFound);
     }
 
-    public List<Product> getAllProductsByStatus(ProductStatusEnums statusEnum){
+    public List<Product> getAllProductsByStatus(ProductStatusEnums statusEnum) {
         return productRepository.findAllByStatusOrderByUpdateDateDesc(statusEnum);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Product createProduct(CreateProductInput createProductInput) {
+        Food dbFood = foodService.getFoodByName(createProductInput.getName());
+
+        Product newProduct = new Product();
+        newProduct.setName(createProductInput.getName());
+        newProduct.setPrice(createProductInput.getPrice());
+        newProduct.setThumbnailId(null);
+
+        try {
+            makeFoodAsync(dbFood.getName());
+            newProduct.setStatus(ProductStatusEnums.READY);
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+
+        newProduct.setFoodId(dbFood.getId());
+        productRepository.save(newProduct);
+        return newProduct;
+    }
+
+    @Async
+    public void makeFoodAsync(String foodName) {
+        foodService.makeFood(foodName);
     }
 }
