@@ -69,4 +69,8 @@ public class CustomException extends RuntimeException {
     public static CustomException productPriceLimitException() {
         return new CustomException("Product price must be greater than 0.0");
     }
+
+    public static CustomException productStatusIsSameWithInput() {
+        return new CustomException("Product status is same with given input status");
+    }
 }
