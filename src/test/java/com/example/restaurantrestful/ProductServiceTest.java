@@ -1,9 +1,6 @@
 package com.example.restaurantrestful;
 
-import com.example.restaurantrestful.dto.inputs.product.CreateProductInput;
-import com.example.restaurantrestful.dto.inputs.product.UpdateProductPriceInput;
-import com.example.restaurantrestful.dto.inputs.product.UpdateProductStatusInput;
-import com.example.restaurantrestful.dto.inputs.product.UpdateProductThumbnailInput;
+import com.example.restaurantrestful.dto.inputs.product.*;
 import com.example.restaurantrestful.entity.Food;
 import com.example.restaurantrestful.entity.Product;
 import com.example.restaurantrestful.enums.ProductStatusEnums;
@@ -274,6 +271,43 @@ public class ProductServiceTest {
 
         assertEquals("Thumbnail id is same with given input",exception.getMessage());
 
+    }
+
+    @DisplayName("updateProductName should return valid product when given id is exist on product db and given name is exist on food db")
+    @Test
+    void testUpdateProductName_success(){
+        UpdateProductNameInput updateProductNameInput = new UpdateProductNameInput("test_product_id","test_new_name");
+        Food dbFood = new Food();
+        dbFood.setId("test_food_id");
+        dbFood.setName("test_new_name");
+
+        when(productRepositoryMock.findById(updateProductNameInput.getId())).thenReturn(Optional.ofNullable(productMock));
+        when(foodServiceMock.getFoodByName(updateProductNameInput.getName().toLowerCase())).thenReturn(dbFood);
+
+        Product result = productService.updateProductName(updateProductNameInput);
+
+        assertEquals(dbFood.getName(),productMock.getName());
+    }
+
+    @DisplayName("updateProductName should throw custom exception productNotFound when given id does not exist at updateProductNameInput")
+    @Test
+    void testUpdateProductName_productNotFound(){
+        UpdateProductNameInput updateProductNameInput = new UpdateProductNameInput("test_product_id","test_new_name");
+
+        when(productRepositoryMock.findById(updateProductNameInput.getId())).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()-> productService.updateProductName(updateProductNameInput));
+    }
+
+    @DisplayName("updateProductName should throw custom exception foodNotFound when given id is exist but name does not exist on food db at updateProductNameInput")
+    @Test
+    void testUpdateProductName_foodNotFound(){
+        UpdateProductNameInput updateProductNameInput = new UpdateProductNameInput("test_product_id","test_new_name");
+
+        when(productRepositoryMock.findById(updateProductNameInput.getId())).thenReturn(Optional.ofNullable(productMock));
+        when(foodServiceMock.getFoodByName(updateProductNameInput.getName().toLowerCase())).thenThrow(CustomException.foodNotFound());
+
+        assertThrows(CustomException.class,()-> productService.updateProductName(updateProductNameInput));
     }
 
 }

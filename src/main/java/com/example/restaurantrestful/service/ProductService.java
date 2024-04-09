@@ -1,9 +1,6 @@
 package com.example.restaurantrestful.service;
 
-import com.example.restaurantrestful.dto.inputs.product.CreateProductInput;
-import com.example.restaurantrestful.dto.inputs.product.UpdateProductPriceInput;
-import com.example.restaurantrestful.dto.inputs.product.UpdateProductStatusInput;
-import com.example.restaurantrestful.dto.inputs.product.UpdateProductThumbnailInput;
+import com.example.restaurantrestful.dto.inputs.product.*;
 import com.example.restaurantrestful.entity.Food;
 import com.example.restaurantrestful.entity.Product;
 import com.example.restaurantrestful.enums.ProductStatusEnums;
@@ -64,50 +61,63 @@ public class ProductService {
     }
 
     @Transactional
-    public Product updateProductPrice(UpdateProductPriceInput updateProductPriceInput){
+    public Product updateProductPrice(UpdateProductPriceInput updateProductPriceInput) {
         Product dbProduct = productRepository.findById(updateProductPriceInput.getId()).orElseThrow(CustomException::productNotFound);
 
-        if(updateProductPriceInput.getNewPrice() > 0.0){
+        if (updateProductPriceInput.getNewPrice() > 0.0) {
             dbProduct.setPrice(updateProductPriceInput.getNewPrice());
             dbProduct.setUpdateDate(new Date());
             productRepository.save(dbProduct);
 
             return dbProduct;
-        }else{
+        } else {
             throw CustomException.productPriceLimitException();
         }
 
     }
 
     @Transactional
-    public Product updateProductStatus(UpdateProductStatusInput updateProductStatusInput){
+    public Product updateProductStatus(UpdateProductStatusInput updateProductStatusInput) {
         Product dbProduct = productRepository.findById(updateProductStatusInput.getId()).orElseThrow(CustomException::productNotFound);
 
-        if(!dbProduct.getStatus().equals(updateProductStatusInput.getStatus())){
+        if (!dbProduct.getStatus().equals(updateProductStatusInput.getStatus())) {
             dbProduct.setStatus(updateProductStatusInput.getStatus());
             dbProduct.setUpdateDate(new Date());
             productRepository.save(dbProduct);
 
             return dbProduct;
-        }else{
+        } else {
             throw CustomException.productStatusIsSameWithInput();
         }
     }
 
     @Transactional
-    public Product updateProductThumbnail(UpdateProductThumbnailInput updateProductThumbnailInput){
+    public Product updateProductThumbnail(UpdateProductThumbnailInput updateProductThumbnailInput) {
         Product dbProduct = productRepository.findById(updateProductThumbnailInput.getId()).orElseThrow(CustomException::productNotFound);
 
-        if(!dbProduct.getThumbnailId().equals(updateProductThumbnailInput.getThumbnailId())){
+        if (!dbProduct.getThumbnailId().equals(updateProductThumbnailInput.getThumbnailId())) {
             dbProduct.setThumbnailId(updateProductThumbnailInput.getThumbnailId());
             dbProduct.setUpdateDate(new Date());
             productRepository.save(dbProduct);
 
             return dbProduct;
-        }else{
+        } else {
             throw CustomException.productThumbnailIdSameWithInput();
         }
 
+    }
+
+    @Transactional
+    public Product updateProductName(UpdateProductNameInput updateProductNameInput) {
+        Product dbProduct = productRepository.findById(updateProductNameInput.getId()).orElseThrow(CustomException::productNotFound);
+
+        Food dbFood = foodService.getFoodByName(updateProductNameInput.getName().toLowerCase());
+
+        dbProduct.setName(dbFood.getName());
+        dbProduct.setUpdateDate(new Date());
+        productRepository.save(dbProduct);
+
+        return dbProduct;
     }
 
     @Async
