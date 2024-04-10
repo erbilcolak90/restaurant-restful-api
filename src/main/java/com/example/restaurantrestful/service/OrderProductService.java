@@ -6,6 +6,8 @@ import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.jpa.OrderProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class OrderProductService {
 
@@ -25,5 +27,11 @@ public class OrderProductService {
     public OrderProductPayload getOrderProductByProductId(String productId){
         OrderProduct dbOrderProduct = orderProductRepository.findByProductId(productId).orElseThrow(CustomException::orderProductNotFound);
         return OrderProductPayload.convert(dbOrderProduct);
+    }
+
+    public List<OrderProductPayload> getOrderProductsByOrderId(String orderId){
+        List<OrderProduct> orderProductList = orderProductRepository.findByOrderId(orderId);
+        List<OrderProductPayload> orderProductPayloadList = orderProductList.stream().map(orderProduct -> OrderProductPayload.convert(orderProduct)).toList();
+        return orderProductPayloadList;
     }
 }

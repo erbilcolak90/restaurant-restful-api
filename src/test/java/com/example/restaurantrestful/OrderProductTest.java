@@ -15,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -86,6 +88,21 @@ public class OrderProductTest {
         when(orderProductRepositoryMock.findByProductId(test_product_id)).thenReturn(Optional.empty());
 
         assertThrows(CustomException.class,()-> orderProductServiceMock.getOrderProductByProductId(test_product_id));
+    }
+
+    @DisplayName("getOrderProductsByOrderId should return list orderProductPayload when given with orderId")
+    @Test
+    void testGetOrderProductsByOrderId_success(){
+        String order_id = "test_order_id";
+
+        List<OrderProduct> orderProductList = new ArrayList<>();
+        orderProductList.add(orderProductMock);
+
+        when(orderProductRepositoryMock.findByOrderId(order_id)).thenReturn(orderProductList);
+
+        List<OrderProductPayload> result = orderProductServiceMock.getOrderProductsByOrderId(order_id);
+
+        assertEquals(1,result.size());
     }
 
 
