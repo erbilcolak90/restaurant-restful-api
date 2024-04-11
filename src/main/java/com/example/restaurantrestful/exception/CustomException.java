@@ -81,4 +81,8 @@ public class CustomException extends RuntimeException {
     public static CustomException orderProductNotFound() {
         return new CustomException("OrderProduct not found");
     }
+
+    public static CustomException orderNotFound() {
+        return new CustomException("Order not found");
+    }
 }
