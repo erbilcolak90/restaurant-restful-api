@@ -1,6 +1,7 @@
 package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.dto.inputs.orderproduct.CreateOrderProductInput;
+import com.example.restaurantrestful.dto.inputs.orderproduct.DeleteOrderProductInput;
 import com.example.restaurantrestful.dto.inputs.orderproduct.UpdateOrderProductQuantityInput;
 import com.example.restaurantrestful.dto.payloads.OrderProductPayload;
 import com.example.restaurantrestful.entity.OrderProduct;
@@ -26,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class OrderProductServiceTest {
+class OrderProductServiceTest {
 
     @InjectMocks
     private OrderProductService orderProductServiceMock;
@@ -49,7 +50,7 @@ public class OrderProductServiceTest {
         orderProductMock.setId("test_id");
         orderProductMock.setOrderId("test_order_id");
         orderProductMock.setProductId("test_product_id");
-        orderProductMock.setQuantity(1);
+        orderProductMock.setQuantity(3);
         orderProductMock.setPrice(100.0);
 
         productMock = new Product();
@@ -159,6 +160,49 @@ public class OrderProductServiceTest {
 
         assertNotNull(result);
     }
+
+    @DisplayName("deleteOrderProduct should return true when given productName is exist and given quantity less than dbOrderProduct quantity from DeleteOrderProductInput")
+    @Test
+    void testDeleteOrderProduct_success(){
+        DeleteOrderProductInput deleteOrderProductInput = new DeleteOrderProductInput("test_order_id","test_product_name",3);
+        List<OrderProduct> orderProductList = new ArrayList<>();
+
+        orderProductList.add(orderProductMock);
+        when(productServiceMock.getProductByName(deleteOrderProductInput.getProductName().toLowerCase())).thenReturn(productMock);
+        when(orderProductRepositoryMock.findByOrderId(deleteOrderProductInput.getOrderId())).thenReturn(orderProductList);
+        when(orderProductRepositoryMock.save(orderProductMock)).thenReturn(orderProductMock);
+
+        assertTrue(orderProductServiceMock.deleteOrderProduct(deleteOrderProductInput));
+    }
+
+    @DisplayName("deleteOrderProduct should return false when given productName exist but orderProduct not contains at orderProductList from deleteOrderProductInput")
+    @Test
+    void testDeleteOrderProduct_orderProductListNotContains_false(){
+        DeleteOrderProductInput deleteOrderProductInput = new DeleteOrderProductInput("test_order_id","test_product_name",2);
+        List<OrderProduct> orderProductList = new ArrayList<>();
+
+        when(productServiceMock.getProductByName(deleteOrderProductInput.getProductName().toLowerCase())).thenReturn(productMock);
+        when(orderProductRepositoryMock.findByOrderId(deleteOrderProductInput.getOrderId())).thenReturn(orderProductList);
+
+        assertFalse(orderProductServiceMock.deleteOrderProduct(deleteOrderProductInput));
+    }
+
+    @DisplayName("deleteOrderProduct should throw custom exception orderProductQuantityLimitException when given productName exist orderProductList contains orderProduct but orderProduct quantity less than deleteOrderProductInput quantity from deleteOrderProductInput")
+    @Test
+    void testDeleteOrderProduct_orderProductQuantityLimitException(){
+        DeleteOrderProductInput deleteOrderProductInput = new DeleteOrderProductInput("test_order_id","test_product_name",2);
+        List<OrderProduct> orderProductList = new ArrayList<>();
+        orderProductMock.setQuantity(1);
+        orderProductList.add(orderProductMock);
+
+        when(productServiceMock.getProductByName(deleteOrderProductInput.getProductName().toLowerCase())).thenReturn(productMock);
+        when(orderProductRepositoryMock.findByOrderId(deleteOrderProductInput.getOrderId())).thenReturn(orderProductList);
+
+        CustomException exception = assertThrows(CustomException.class, ()-> orderProductServiceMock.deleteOrderProduct(deleteOrderProductInput));
+
+        assertEquals("Product quantity : "+orderProductMock.getQuantity() + " the number of products that want to be delete : " + deleteOrderProductInput.getQuantity(),exception.getMessage());
+    }
+
 
     @AfterEach
     void tearDown() {
