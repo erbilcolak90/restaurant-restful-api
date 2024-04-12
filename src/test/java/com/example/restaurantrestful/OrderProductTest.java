@@ -1,7 +1,9 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.dto.inputs.orderproduct.CreateOrderProductInput;
 import com.example.restaurantrestful.dto.payloads.OrderProductPayload;
 import com.example.restaurantrestful.entity.OrderProduct;
+import com.example.restaurantrestful.entity.Product;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.jpa.OrderProductRepository;
 import com.example.restaurantrestful.service.OrderProductService;
@@ -36,13 +38,27 @@ public class OrderProductTest {
 
     private OrderProduct orderProductMock;
 
+    private Product productMock;
+
+    private OrderProductPayload orderProductPayloadMock;
+
     @BeforeEach
     void setUp(){
         orderProductMock = new OrderProduct();
         orderProductMock.setId("test_id");
         orderProductMock.setOrderId("test_order_id");
         orderProductMock.setProductId("test_product_id");
+        orderProductMock.setQuantity(1);
         orderProductMock.setPrice(100.0);
+
+        productMock = new Product();
+        productMock.setId("test_product_id");
+        productMock.setName("test_product_name");
+        productMock.setPrice(100);
+        productMock.setThumbnailId("test_thumbnail_id");
+        productMock.setFoodId("test_food_id");
+
+        orderProductPayloadMock = new OrderProductPayload("test_id","test_order_id","test_product_id",100.0);
 
     }
 
@@ -105,6 +121,28 @@ public class OrderProductTest {
         assertEquals(1,result.size());
     }
 
+    @DisplayName("createOrderProduct should return valid orderProductPayload when given productName is exist")
+    @Test
+    void testCreateOrderProduct_success(){
+        CreateOrderProductInput createOrderProductInput = new CreateOrderProductInput("test_order_id","test_product_name",1);
+
+        OrderProduct orderProduct = new OrderProduct();
+        orderProduct.setId("test_id");
+        orderProduct.setOrderId(createOrderProductInput.getOrderId());
+        orderProduct.setProductId(productMock.getId());
+        orderProduct.setQuantity(createOrderProductInput.getQuantity());
+        orderProduct.setPrice(createOrderProductInput.getQuantity() * productMock.getPrice());
+
+        OrderProductPayload orderProductPayload = new OrderProductPayload(orderProduct.getId(), orderProduct.getOrderId(), orderProduct.getProductId(), orderProduct.getPrice());
+
+        when(productServiceMock.getProductByName(createOrderProductInput.getProductName())).thenReturn(productMock);
+        when(orderProductRepositoryMock.save(any(OrderProduct.class))).thenReturn(orderProduct);
+
+        OrderProductPayload result = orderProductServiceMock.createOrderProduct(createOrderProductInput);
+
+        assertNotNull(result);
+        assertEquals(orderProductPayload, result);
+    }
 
     @AfterEach
     void tearDown() {

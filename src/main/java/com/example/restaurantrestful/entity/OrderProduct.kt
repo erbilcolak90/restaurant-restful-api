@@ -14,4 +14,5 @@ data class OrderProduct @JvmOverloads constructor(
         var orderId: String,
         var productId: String,
         var price: Double,
+        var quantity: Int
 ): BaseEntity()
