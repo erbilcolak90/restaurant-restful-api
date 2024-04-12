@@ -1,6 +1,7 @@
 package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.dto.inputs.orderproduct.CreateOrderProductInput;
+import com.example.restaurantrestful.dto.inputs.orderproduct.UpdateOrderProductQuantityInput;
 import com.example.restaurantrestful.dto.payloads.OrderProductPayload;
 import com.example.restaurantrestful.entity.OrderProduct;
 import com.example.restaurantrestful.entity.Product;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class OrderProductTest {
+public class OrderProductServiceTest {
 
     @InjectMocks
     private OrderProductService orderProductServiceMock;
@@ -142,6 +143,21 @@ public class OrderProductTest {
 
         assertNotNull(result);
         assertEquals(orderProductPayload, result);
+    }
+
+    @DisplayName("updateOrderProductQuantity should return valid orderProductPayload when given productName is exist in UpdateOrderProductQuantityInput ")
+    @Test
+    void testUpdateOrderProductQuantity_success(){
+        UpdateOrderProductQuantityInput updateOrderProductQuantityInput = new UpdateOrderProductQuantityInput("test_order_id","test_product_name",3);
+        List<OrderProduct> orderProductList = new ArrayList<>();
+        orderProductList.add(orderProductMock);
+
+        when(productServiceMock.getProductByName(updateOrderProductQuantityInput.getProductName().toLowerCase())).thenReturn(productMock);
+        when(orderProductRepositoryMock.findByOrderId(updateOrderProductQuantityInput.getOrderId())).thenReturn(orderProductList);
+
+        OrderProductPayload result = orderProductServiceMock.updateOrderProductQuantity(updateOrderProductQuantityInput);
+
+        assertNotNull(result);
     }
 
     @AfterEach
