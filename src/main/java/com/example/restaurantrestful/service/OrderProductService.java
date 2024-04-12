@@ -1,14 +1,17 @@
 package com.example.restaurantrestful.service;
 
 import com.example.restaurantrestful.dto.inputs.orderproduct.CreateOrderProductInput;
+import com.example.restaurantrestful.dto.inputs.orderproduct.UpdateOrderProductQuantityInput;
 import com.example.restaurantrestful.dto.payloads.OrderProductPayload;
 import com.example.restaurantrestful.entity.OrderProduct;
 import com.example.restaurantrestful.entity.Product;
+import com.example.restaurantrestful.enums.ProductStatusEnums;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.jpa.OrderProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -50,5 +53,25 @@ public class OrderProductService {
         OrderProduct dbOrderProduct = orderProductRepository.save(orderProduct);
 
         return OrderProductPayload.convert(dbOrderProduct);
+    }
+
+    @Transactional
+    public OrderProductPayload updateOrderProductQuantity(UpdateOrderProductQuantityInput updateOrderProductQuantityInput){
+
+        Product dbProduct = productService.getProductByName(updateOrderProductQuantityInput.getProductName().toLowerCase());
+
+        List<OrderProduct> dbOrderProductList = orderProductRepository.findByOrderId(updateOrderProductQuantityInput.getOrderId());
+
+        OrderProduct updatedOrderProduct = new OrderProduct();
+        for(OrderProduct item: dbOrderProductList){
+            if(item.getProductId().equals(dbProduct.getId())){
+                item.setQuantity(updateOrderProductQuantityInput.getQuantity());
+                item.setUpdateDate(new Date());
+                orderProductRepository.save(item);
+                updatedOrderProduct = item;
+                break;
+            }
+        }
+        return OrderProductPayload.convert(updatedOrderProduct);
     }
 }
