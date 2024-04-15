@@ -1,5 +1,6 @@
 package com.example.restaurantrestful.service;
 
+import com.example.restaurantrestful.dto.inputs.order.AddProductToOrderInput;
 import com.example.restaurantrestful.dto.inputs.order.CreateOrderInput;
 import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersByDateRangeInput;
 import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersInput;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -60,11 +62,25 @@ public class OrderService {
         for (Map.Entry<String, Integer> productName : createOrderInput.getOrderProductNames().entrySet()) {
             CreateOrderProductInput createOrderProductInput = new CreateOrderProductInput(dbOrder.getId(), productName.getKey(), productName.getValue());
             OrderProductPayload orderProductPayload = orderProductService.createOrderProduct(createOrderProductInput);
-            dbOrder.getOrderProductIds().add(orderProductPayload.getProductId());
+            dbOrder.getOrderProductIds().add(orderProductPayload.getId());
             dbOrder.setTotalPrice(dbOrder.getTotalPrice() + orderProductPayload.getPrice());
         }
 
         orderRepository.save(dbOrder);
+        return dbOrder;
+    }
+
+    @Transactional
+    public Order addProductToOrder(AddProductToOrderInput addProductToOrderInput) {
+        Order dbOrder = orderRepository.findById(addProductToOrderInput.getOrderId()).orElseThrow(CustomException::orderNotFound);
+        CreateOrderProductInput createOrderProductInput = new CreateOrderProductInput(addProductToOrderInput.getOrderId(), addProductToOrderInput.getProductName(), addProductToOrderInput.getQuantity());
+        OrderProductPayload orderProductPayload = orderProductService.createOrderProduct(createOrderProductInput);
+        dbOrder.getOrderProductIds().add(orderProductPayload.getId());
+        dbOrder.setTotalPrice(dbOrder.getTotalPrice()+ orderProductPayload.getPrice());
+
+        dbOrder.setUpdateDate(new Date());
+        orderRepository.save(dbOrder);
+
         return dbOrder;
     }
 }

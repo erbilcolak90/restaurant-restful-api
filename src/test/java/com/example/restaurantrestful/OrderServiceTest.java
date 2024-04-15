@@ -1,5 +1,6 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.dto.inputs.order.AddProductToOrderInput;
 import com.example.restaurantrestful.dto.inputs.order.CreateOrderInput;
 import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersByDateRangeInput;
 import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersInput;
@@ -165,6 +166,33 @@ public class OrderServiceTest {
         assertNotNull(result);
         assertEquals(3,result.getOrderProductIds().size());
 
+    }
+
+    @DisplayName("addProductToOrder should return valid order when given order id is exist and productName is exist in addProductToOrderInput")
+    @Test
+    void testAddProductToOrder_success(){
+        AddProductToOrderInput addProductToOrderInput = new AddProductToOrderInput("test_id","test_product_name_1",2);
+        CreateOrderProductInput createOrderProductInput = new CreateOrderProductInput("test_id", "test_product_name_1",2);
+        OrderProductPayload orderProductPayload = new OrderProductPayload("test_orderProduct_id_1", "test_id", "test_product_id_1",100.0);
+
+        when(orderRepositoryMock.findById(addProductToOrderInput.getOrderId())).thenReturn(Optional.ofNullable(orderMock));
+        when(orderProductServiceMock.createOrderProduct(createOrderProductInput)).thenReturn(orderProductPayload);
+
+        Order result = orderServiceMock.addProductToOrder(addProductToOrderInput);
+
+        assertNotNull(result);
+        assertEquals(1,result.getOrderProductIds().size());
+
+    }
+
+    @DisplayName("addProductToOrder should throw custom exception orderNotFound when given order id does not exist in addProductToOrderInput")
+    @Test
+    void testAddProductToOrder_orderNotFound(){
+        AddProductToOrderInput addProductToOrderInput = new AddProductToOrderInput("test_id","test_product_name_1",2);
+
+        when(orderRepositoryMock.findById(addProductToOrderInput.getOrderId())).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()-> orderServiceMock.addProductToOrder(addProductToOrderInput));
     }
 
     @AfterEach
