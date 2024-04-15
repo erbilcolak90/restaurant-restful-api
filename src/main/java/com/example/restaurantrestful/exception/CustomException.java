@@ -93,4 +93,8 @@ public class CustomException extends RuntimeException {
     public static CustomException orderIsAlreadyDeleted() {
         return new CustomException("Order is already deleted");
     }
+
+    public static CustomException orderIsAlreadyCompleted() {
+        return new CustomException("Order is already completed");
+    }
 }

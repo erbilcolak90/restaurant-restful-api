@@ -230,7 +230,7 @@ public class OrderServiceTest {
     void testDeleteOrderProductFromOrder_orderNotFound(){
         DeleteProductFromOrderInput deleteProductFromOrderInput = new DeleteProductFromOrderInput("test_id","test_product_name_1",2);
 
-        when(orderRepositoryMock.findById(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.empty());
+        when(orderRepositoryMock.findByIdAndDeletedFalse(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.empty());
 
         assertThrows(CustomException.class,()-> orderServiceMock.deleteProductFromOrder(deleteProductFromOrderInput));
     }
@@ -264,6 +264,37 @@ public class OrderServiceTest {
         when(orderRepositoryMock.findById(test_id)).thenReturn(Optional.empty());
 
         assertThrows(CustomException.class,()->orderServiceMock.deleteOrder(test_id));
+    }
+
+    @DisplayName("completeOrder should return true when given id is exist")
+    @Test
+    void testCompleteOrder_success(){
+        String test_id = "test_id";
+
+        when(orderRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(orderMock));
+
+        assertTrue(orderServiceMock.completeOrder(test_id));
+    }
+
+    @DisplayName("completeOrder should throw custom exception orderIsAlreadyCompleted when given id is exist but is completed true")
+    @Test
+    void testCompleteOrder_orderIsAlreadyCompleted(){
+        String test_id = "test_id";
+        orderMock.setCompleted(true);
+
+        when(orderRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(orderMock));
+
+        assertThrows(CustomException.class,()->orderServiceMock.completeOrder(test_id));
+    }
+
+    @DisplayName("completeOrder should throw custom exception orderNotFound when given id does not exist")
+    @Test
+    void testCompleteOrder_orderNotFound(){
+        String test_id = "test_id";
+
+        when(orderRepositoryMock.findById(test_id)).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()->orderServiceMock.completeOrder(test_id));
     }
 
     @AfterEach
