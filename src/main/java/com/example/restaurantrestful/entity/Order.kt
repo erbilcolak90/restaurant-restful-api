@@ -8,7 +8,7 @@ import jakarta.persistence.Table
 data class Order @JvmOverloads constructor(
 
         var id: String,
-        var orderIds: MutableList<String>?,
-        var totalPrice: Double,
-        var isCompleted: Boolean,
+        var orderProductIds: MutableList<String>?,
+        var totalPrice: Double=0.0,
+        var isCompleted: Boolean=false,
 ):BaseEntity()

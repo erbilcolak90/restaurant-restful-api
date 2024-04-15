@@ -1,7 +1,10 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.dto.inputs.order.CreateOrderInput;
 import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersByDateRangeInput;
 import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersInput;
+import com.example.restaurantrestful.dto.inputs.orderproduct.CreateOrderProductInput;
+import com.example.restaurantrestful.dto.payloads.OrderProductPayload;
 import com.example.restaurantrestful.entity.Order;
 import com.example.restaurantrestful.enums.SortBy;
 import com.example.restaurantrestful.exception.CustomException;
@@ -22,6 +25,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +50,7 @@ public class OrderServiceTest {
     void setUp() {
         orderMock = new Order();
         orderMock.setId("test_id");
-        orderMock.setOrderIds(new ArrayList<>());
+        orderMock.setOrderProductIds(new ArrayList<>());
         orderMock.setTotalPrice(100.0);
         orderMock.setCompleted(false);
 
@@ -130,6 +134,37 @@ public class OrderServiceTest {
         List<Order> result = orderServiceMock.getAllOrdersByDateRange(getAllOrdersByDateRangeInput);
 
         assertEquals(4,result.size());
+    }
+
+    @DisplayName("createOrder should return valid order when given productNames exist in createOrderInput")
+    @Test
+    void testCreateOrder_success(){
+        HashMap<String, Integer> productNames = new HashMap<>();
+        productNames.put("test_product_name_1",2);
+        productNames.put("test_product_name_2",3);
+        productNames.put("test_product_name_3",4);
+
+        CreateOrderInput createOrderInput = new CreateOrderInput(productNames);
+
+        CreateOrderProductInput createOrderProductInput = new CreateOrderProductInput("test_id", "test_product_name_1",2);
+        CreateOrderProductInput createOrderProductInput2 = new CreateOrderProductInput("test_id", "test_product_name_2",3);
+        CreateOrderProductInput createOrderProductInput3 = new CreateOrderProductInput("test_id", "test_product_name_3",4);
+
+        OrderProductPayload orderProductPayload = new OrderProductPayload("test_orderProduct_id_1", "test_id", "test_product_id_1",100.0);
+        OrderProductPayload orderProductPayload2 = new OrderProductPayload("test_orderProduct_id_2", "test_id", "test_product_id_2",100.0);
+        OrderProductPayload orderProductPayload3 = new OrderProductPayload("test_orderProduct_id_3", "test_id", "test_product_id_3",100.0);
+
+
+        when(orderRepositoryMock.save(new Order())).thenReturn(orderMock);
+        when(orderProductServiceMock.createOrderProduct(createOrderProductInput)).thenReturn(orderProductPayload);
+        when(orderProductServiceMock.createOrderProduct(createOrderProductInput2)).thenReturn(orderProductPayload2);
+        when(orderProductServiceMock.createOrderProduct(createOrderProductInput3)).thenReturn(orderProductPayload3);
+
+        Order result = orderServiceMock.createOrder(createOrderInput);
+
+        assertNotNull(result);
+        assertEquals(3,result.getOrderProductIds().size());
+
     }
 
     @AfterEach
