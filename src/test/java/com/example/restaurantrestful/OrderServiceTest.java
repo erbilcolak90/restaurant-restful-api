@@ -1,17 +1,19 @@
 package com.example.restaurantrestful;
 
-import com.example.restaurantrestful.dto.inputs.order.AddProductToOrderInput;
-import com.example.restaurantrestful.dto.inputs.order.CreateOrderInput;
-import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersByDateRangeInput;
-import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersInput;
+import com.example.restaurantrestful.dto.inputs.order.*;
 import com.example.restaurantrestful.dto.inputs.orderproduct.CreateOrderProductInput;
+import com.example.restaurantrestful.dto.inputs.orderproduct.DeleteOrderProductInput;
 import com.example.restaurantrestful.dto.payloads.OrderProductPayload;
 import com.example.restaurantrestful.entity.Order;
+import com.example.restaurantrestful.entity.OrderProduct;
+import com.example.restaurantrestful.entity.Product;
+import com.example.restaurantrestful.enums.ProductStatusEnums;
 import com.example.restaurantrestful.enums.SortBy;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.jpa.OrderRepository;
 import com.example.restaurantrestful.service.OrderProductService;
 import com.example.restaurantrestful.service.OrderService;
+import com.example.restaurantrestful.service.ProductService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,6 +46,9 @@ public class OrderServiceTest {
 
     @Mock
     private OrderProductService orderProductServiceMock;
+
+    @Mock
+    private ProductService productServiceMock;
 
     private Order orderMock;
 
@@ -193,6 +198,39 @@ public class OrderServiceTest {
         when(orderRepositoryMock.findById(addProductToOrderInput.getOrderId())).thenReturn(Optional.empty());
 
         assertThrows(CustomException.class,()-> orderServiceMock.addProductToOrder(addProductToOrderInput));
+    }
+
+    @DisplayName("deleteProductFromOrder should return valid order when given order id is exist and product name is exist in deleteProductFromOrderInput")
+    @Test
+    void testDeleteProductFromOrder_success(){
+        DeleteProductFromOrderInput deleteProductFromOrderInput = new DeleteProductFromOrderInput("test_id","test_product_name_1",1);
+        DeleteOrderProductInput deleteOrderProductInput = new DeleteOrderProductInput(deleteProductFromOrderInput.getOrderId(), deleteProductFromOrderInput.getProductName().toLowerCase(), deleteProductFromOrderInput.getQuantity());
+        OrderProduct orderProduct = new OrderProduct("test_orderProduct_id","test_id","test_product_id_1",100.0,1);
+        orderMock.getOrderProductIds().add(orderProduct.getId());
+
+        Product product = new Product("test_product_id_1","test_product_name_1","test_food_id","",100.0, ProductStatusEnums.READY);
+        OrderProductPayload orderProductPayload = new OrderProductPayload("test_orderProduct_id", "test_id", "test_product_id_1",100.0);
+
+        when(orderRepositoryMock.findById(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.ofNullable(orderMock));
+        when(orderProductServiceMock.deleteOrderProduct(deleteOrderProductInput)).thenReturn(true);
+        when(productServiceMock.getProductByName(deleteProductFromOrderInput.getProductName().toLowerCase())).thenReturn(product);
+        when(orderProductServiceMock.getOrderProductByProductId(product.getId())).thenReturn(orderProductPayload);
+
+        Order result = orderServiceMock.deleteProductFromOrder(deleteProductFromOrderInput);
+
+        assertNotNull(result);
+        assertEquals(0,result.getOrderProductIds().size());
+
+    }
+
+    @DisplayName("deleteOrderProductFromOrder should throw custom exception orderNotFound when given order id does not exist in deleteProductFromOrderInput")
+    @Test
+    void testDeleteOrderProductFromOrder_orderNotFound(){
+        DeleteProductFromOrderInput deleteProductFromOrderInput = new DeleteProductFromOrderInput("test_id","test_product_name_1",2);
+
+        when(orderRepositoryMock.findById(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()-> orderServiceMock.deleteProductFromOrder(deleteProductFromOrderInput));
     }
 
     @AfterEach
