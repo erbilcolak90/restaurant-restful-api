@@ -116,4 +116,16 @@ public class OrderService {
         }
         return true;
     }
+
+    @Transactional
+    public boolean completeOrder(String id){
+        Order dbOrder = orderRepository.findById(id).orElseThrow(CustomException::orderNotFound);
+
+        if(dbOrder.isCompleted()){
+            throw CustomException.orderIsAlreadyCompleted();
+        }else{
+            dbOrder.setCompleted(true);
+        }
+        return true;
+    }
 }
