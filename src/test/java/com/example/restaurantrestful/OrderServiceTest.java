@@ -78,7 +78,9 @@ public class OrderServiceTest {
     @DisplayName("getOrderById should throw custom exception orderNotFound when given id does not exist")
     @Test
     void testGetOrderById_orderNotFound() {
-        assertThrows(CustomException.class, () -> orderServiceMock.getOrderById(anyString()));
+        String id = "";
+        when(orderRepositoryMock.findById(id)).thenReturn(Optional.empty());
+        assertThrows(CustomException.class, () -> orderServiceMock.getOrderById(id));
     }
 
     @DisplayName("getAllOrders should return page order when given getAllOrderInput is exist")
@@ -180,7 +182,7 @@ public class OrderServiceTest {
         CreateOrderProductInput createOrderProductInput = new CreateOrderProductInput("test_id", "test_product_name_1",2);
         OrderProductPayload orderProductPayload = new OrderProductPayload("test_orderProduct_id_1", "test_id", "test_product_id_1",100.0);
 
-        when(orderRepositoryMock.findById(addProductToOrderInput.getOrderId())).thenReturn(Optional.ofNullable(orderMock));
+        when(orderRepositoryMock.findByIdAndDeletedFalse(addProductToOrderInput.getOrderId())).thenReturn(Optional.ofNullable(orderMock));
         when(orderProductServiceMock.createOrderProduct(createOrderProductInput)).thenReturn(orderProductPayload);
 
         Order result = orderServiceMock.addProductToOrder(addProductToOrderInput);
@@ -195,7 +197,7 @@ public class OrderServiceTest {
     void testAddProductToOrder_orderNotFound(){
         AddProductToOrderInput addProductToOrderInput = new AddProductToOrderInput("test_id","test_product_name_1",2);
 
-        when(orderRepositoryMock.findById(addProductToOrderInput.getOrderId())).thenReturn(Optional.empty());
+        when(orderRepositoryMock.findByIdAndDeletedFalse(addProductToOrderInput.getOrderId())).thenReturn(Optional.empty());
 
         assertThrows(CustomException.class,()-> orderServiceMock.addProductToOrder(addProductToOrderInput));
     }
@@ -211,7 +213,7 @@ public class OrderServiceTest {
         Product product = new Product("test_product_id_1","test_product_name_1","test_food_id","",100.0, ProductStatusEnums.READY);
         OrderProductPayload orderProductPayload = new OrderProductPayload("test_orderProduct_id", "test_id", "test_product_id_1",100.0);
 
-        when(orderRepositoryMock.findById(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.ofNullable(orderMock));
+        when(orderRepositoryMock.findByIdAndDeletedFalse(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.ofNullable(orderMock));
         when(orderProductServiceMock.deleteOrderProduct(deleteOrderProductInput)).thenReturn(true);
         when(productServiceMock.getProductByName(deleteProductFromOrderInput.getProductName().toLowerCase())).thenReturn(product);
         when(orderProductServiceMock.getOrderProductByProductId(product.getId())).thenReturn(orderProductPayload);
@@ -231,6 +233,37 @@ public class OrderServiceTest {
         when(orderRepositoryMock.findById(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.empty());
 
         assertThrows(CustomException.class,()-> orderServiceMock.deleteProductFromOrder(deleteProductFromOrderInput));
+    }
+
+    @DisplayName("deleteOrder should return true when given id is exist")
+    @Test
+    void testDeleteOrder_success(){
+        String test_id = "test_id";
+
+        when(orderRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(orderMock));
+
+        assertTrue(orderServiceMock.deleteOrder(test_id));
+    }
+
+    @DisplayName("deleteOrder should throw custom exception orderIsAlreadyDeleted when given id is exist but is deleted true")
+    @Test
+    void testDeleteOrder_orderIsAlreadyDeleted(){
+        String test_id = "test_id";
+        orderMock.setDeleted(true);
+
+        when(orderRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(orderMock));
+
+        assertThrows(CustomException.class,()->orderServiceMock.deleteOrder(test_id));
+    }
+
+    @DisplayName("deleteOrder should throw custom exception orderNotFound when given id does not exist")
+    @Test
+    void testDeleteOrder_orderNotFound(){
+        String test_id = "test_id";
+
+        when(orderRepositoryMock.findById(test_id)).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()->orderServiceMock.deleteOrder(test_id));
     }
 
     @AfterEach

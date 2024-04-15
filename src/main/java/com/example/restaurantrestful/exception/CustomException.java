@@ -89,4 +89,8 @@ public class CustomException extends RuntimeException {
     public static CustomException orderProductQuantityLimitException(int quantity, int inputQuantity) {
         return new CustomException("Product quantity : "+quantity + " the number of products that want to be delete : " + inputQuantity);
     }
+
+    public static CustomException orderIsAlreadyDeleted() {
+        return new CustomException("Order is already deleted");
+    }
 }
