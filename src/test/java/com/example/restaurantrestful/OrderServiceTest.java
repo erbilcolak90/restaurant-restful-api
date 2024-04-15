@@ -1,6 +1,8 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersInput;
 import com.example.restaurantrestful.entity.Order;
+import com.example.restaurantrestful.enums.SortBy;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.jpa.OrderRepository;
 import com.example.restaurantrestful.service.OrderProductService;
@@ -13,8 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +39,7 @@ public class OrderServiceTest {
     private Order orderMock;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         orderMock = new Order();
         orderMock.setId("test_id");
         orderMock.setOrderIds(new ArrayList<>());
@@ -43,9 +47,10 @@ public class OrderServiceTest {
         orderMock.setCompleted(false);
 
     }
+
     @DisplayName("getOrderById should return valid order when given id is exist")
     @Test
-    void testGetOrderById_success(){
+    void testGetOrderById_success() {
         String test_id = "test_id";
 
         when(orderRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(orderMock));
@@ -58,12 +63,33 @@ public class OrderServiceTest {
 
     @DisplayName("getOrderById should throw custom exception orderNotFound when given id does not exist")
     @Test
-    void testGetOrderById_orderNotFound(){
-        assertThrows(CustomException.class,()-> orderServiceMock.getOrderById(anyString()));
+    void testGetOrderById_orderNotFound() {
+        assertThrows(CustomException.class, () -> orderServiceMock.getOrderById(anyString()));
+    }
+
+    @DisplayName("getAllOrders should return page order when given getAllOrderInput is exist")
+    @Test
+    void testGetAllOrders_success() {
+        GetAllOrdersInput getAllOrdersInput = new GetAllOrdersInput(1, 1, SortBy.ASC, "id");
+
+        List<Order> orderList = new ArrayList<>();
+        orderList.add(orderMock);
+        orderList.add(new Order("test_order_id_2", new ArrayList<>(), 250.0, false));
+        orderList.add(new Order("test_order_id_3", new ArrayList<>(), 450.0, false));
+
+        Pageable pageable = PageRequest.of(getAllOrdersInput.getPageNumber(), getAllOrdersInput.getPageSize(), Sort.by(Sort.Direction.valueOf(getAllOrdersInput.getSortBy().toString()), getAllOrdersInput.getFieldName()));
+
+        Page<Order> orderPage = new PageImpl<>(orderList, pageable, orderList.size());
+
+        when(orderRepositoryMock.findAll(pageable)).thenReturn(orderPage);
+
+        Page<Order> result = orderServiceMock.getAllOrders(getAllOrdersInput);
+
+        assertNotNull(result);
     }
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
 
     }
 }
