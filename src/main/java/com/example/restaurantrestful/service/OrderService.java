@@ -1,5 +1,6 @@
 package com.example.restaurantrestful.service;
 
+import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersByDateRangeInput;
 import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersInput;
 import com.example.restaurantrestful.entity.Order;
 import com.example.restaurantrestful.exception.CustomException;
@@ -39,5 +40,11 @@ public class OrderService {
 
     public List<Order> getAllOrdersByIsCompletedFalse(){
         return orderRepository.findByIsCompletedFalse();
+    }
+
+    public List<Order> getAllOrdersByDateRange(GetAllOrdersByDateRangeInput getAllOrdersByDateRangeInput){
+
+        return orderRepository.findByCreateDateBetween(getAllOrdersByDateRangeInput.getStartDate(),getAllOrdersByDateRangeInput.getEndDate());
+
     }
 }
