@@ -88,6 +88,24 @@ public class OrderServiceTest {
         assertNotNull(result);
     }
 
+    @DisplayName("getAllOrdersByIsCompletedFalse should return list order")
+    @Test
+    void testGetAllOrdersByIsCompletedFalse_success() {
+        List<Order> orderList = new ArrayList<>();
+        orderList.add(orderMock);
+        orderList.add(new Order("test_order_id_5", new ArrayList<>(), 450.0, false));
+        orderList.add(new Order("test_order_id_6", new ArrayList<>(), 450.0, false));
+        orderList.add(new Order("test_order_id_7", new ArrayList<>(), 450.0, false));
+        orderList.add(new Order("test_order_id_8", new ArrayList<>(), 450.0, false));
+
+        when(orderRepositoryMock.findByIsCompletedFalse()).thenReturn(orderList);
+
+        List<Order> result = orderServiceMock.getAllOrdersByIsCompletedFalse();
+
+        assertNotNull(result);
+        assertEquals(5, result.size());
+    }
+
     @AfterEach
     void tearDown() {
 

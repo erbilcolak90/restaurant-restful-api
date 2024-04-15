@@ -36,4 +36,8 @@ public class OrderService {
 
         return orderRepository.findAll(pageable);
     }
+
+    public List<Order> getAllOrdersByIsCompletedFalse(){
+        return orderRepository.findByIsCompletedFalse();
+    }
 }
