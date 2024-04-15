@@ -1,12 +1,11 @@
 package com.example.restaurantrestful.service;
 
-import com.example.restaurantrestful.dto.inputs.order.AddProductToOrderInput;
-import com.example.restaurantrestful.dto.inputs.order.CreateOrderInput;
-import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersByDateRangeInput;
-import com.example.restaurantrestful.dto.inputs.order.GetAllOrdersInput;
+import com.example.restaurantrestful.dto.inputs.order.*;
 import com.example.restaurantrestful.dto.inputs.orderproduct.CreateOrderProductInput;
+import com.example.restaurantrestful.dto.inputs.orderproduct.DeleteOrderProductInput;
 import com.example.restaurantrestful.dto.payloads.OrderProductPayload;
 import com.example.restaurantrestful.entity.Order;
+import com.example.restaurantrestful.entity.Product;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.jpa.OrderRepository;
 import org.springframework.data.domain.Page;
@@ -27,9 +26,12 @@ public class OrderService {
 
     private final OrderProductService orderProductService;
 
-    public OrderService(OrderRepository orderRepository, OrderProductService orderProductService) {
+    private final ProductService productService;
+
+    public OrderService(OrderRepository orderRepository, OrderProductService orderProductService, ProductService productService) {
         this.orderRepository = orderRepository;
         this.orderProductService = orderProductService;
+        this.productService = productService;
     }
 
     public Order getOrderById(String id) {
@@ -77,6 +79,25 @@ public class OrderService {
         OrderProductPayload orderProductPayload = orderProductService.createOrderProduct(createOrderProductInput);
         dbOrder.getOrderProductIds().add(orderProductPayload.getId());
         dbOrder.setTotalPrice(dbOrder.getTotalPrice()+ orderProductPayload.getPrice());
+
+        dbOrder.setUpdateDate(new Date());
+        orderRepository.save(dbOrder);
+
+        return dbOrder;
+    }
+
+    @Transactional
+    public Order deleteProductFromOrder(DeleteProductFromOrderInput deleteProductFromOrderInput){
+        Order dbOrder = orderRepository.findById(deleteProductFromOrderInput.getOrderId()).orElseThrow(CustomException::orderNotFound);
+        DeleteOrderProductInput deleteOrderProductInput = new DeleteOrderProductInput(deleteProductFromOrderInput.getOrderId(), deleteProductFromOrderInput.getProductName().toLowerCase(), deleteProductFromOrderInput.getQuantity());
+
+        boolean result = orderProductService.deleteOrderProduct(deleteOrderProductInput);
+        Product dbProduct = productService.getProductByName(deleteProductFromOrderInput.getProductName().toLowerCase());
+        OrderProductPayload dbOrderProductPayload = orderProductService.getOrderProductByProductId(dbProduct.getId());
+
+        if(result && dbOrderProductPayload.getPrice() / dbProduct.getPrice() == 1.0){
+                dbOrder.getOrderProductIds().remove(dbOrderProductPayload.getId());
+        }
 
         dbOrder.setUpdateDate(new Date());
         orderRepository.save(dbOrder);
