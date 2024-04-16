@@ -1,10 +1,14 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.dto.inputs.menu.CreateMenuInput;
 import com.example.restaurantrestful.dto.payloads.MenuPayload;
 import com.example.restaurantrestful.entity.Menu;
+import com.example.restaurantrestful.entity.Product;
+import com.example.restaurantrestful.enums.ProductStatusEnums;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.elastic.MenuRepository;
 import com.example.restaurantrestful.service.MenuService;
+import com.example.restaurantrestful.service.ProductService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +35,9 @@ public class MenuServiceTest {
     @Mock
     private MenuRepository menuRepositoryMock;
 
+    @Mock
+    private ProductService productServiceMock;
+
     private Menu menuMock;
 
     @BeforeEach
@@ -37,6 +45,7 @@ public class MenuServiceTest {
         menuMock = new Menu();
         menuMock.setId("test_id");
         menuMock.setName("test_menu_name");
+        menuMock.setProducts(new ArrayList<>());
 
     }
 
@@ -85,6 +94,39 @@ public class MenuServiceTest {
         assertNotNull(result);
         assertEquals(3,result.size());
 
+    }
+
+    @DisplayName("createMenu should return menuPayload when given menu name does not exist in createMenuInput")
+    @Test
+    void testCreateMenu_success(){
+        String menuName = "test_menu_name";
+        List<String> productIds = Arrays.asList("1");
+        CreateMenuInput createMenuInput = new CreateMenuInput(menuName, productIds);
+
+        Product product = new Product("test_product_id","test_product_name","","",100.0, ProductStatusEnums.READY);
+        menuMock.getProducts().add(product);
+
+        when(menuRepositoryMock.findByName(menuName.toLowerCase())).thenReturn(Optional.empty());
+        when(productServiceMock.getProductById(anyString())).thenReturn(product);
+        when(menuRepositoryMock.save(any(Menu.class))).thenReturn(menuMock);
+
+        MenuPayload result = menuServiceMock.createMenu(createMenuInput);
+
+        assertNotNull(result);
+        assertEquals(menuName.toLowerCase(), result.getName());
+        assertEquals(productIds.size(), result.getProducts().size());
+    }
+
+    @DisplayName("createMenu should throw custom exception menuNameIsAlreadyExist when given menu name is exist in createMenuInput")
+    @Test
+    void testCreateMenu_menuNameIsAlreadyExist(){
+        String menuName = "test_menu_name";
+        List<String> productIds = Arrays.asList("1");
+        CreateMenuInput createMenuInput = new CreateMenuInput(menuName, productIds);
+
+        when(menuRepositoryMock.findByName(createMenuInput.getName().toLowerCase())).thenReturn(Optional.ofNullable(menuMock));
+
+        assertThrows(CustomException.class, ()-> menuServiceMock.createMenu(createMenuInput));
     }
 
     @AfterEach
