@@ -13,5 +13,5 @@ data class Menu @JvmOverloads constructor(
         @Field(type = FieldType.Keyword)
         var name: String,
         @Field(type = FieldType.Nested)
-        var products: List<Product>
+        var products: List<Product>?
 ):BaseEntity()
