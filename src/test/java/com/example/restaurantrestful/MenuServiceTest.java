@@ -2,6 +2,7 @@ package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.dto.inputs.menu.AddProductToMenuInput;
 import com.example.restaurantrestful.dto.inputs.menu.CreateMenuInput;
+import com.example.restaurantrestful.dto.inputs.menu.DeleteProductFromMenuInput;
 import com.example.restaurantrestful.dto.payloads.MenuPayload;
 import com.example.restaurantrestful.entity.Menu;
 import com.example.restaurantrestful.entity.Product;
@@ -173,6 +174,46 @@ class MenuServiceTest {
         CustomException exception = assertThrows(CustomException.class, () -> menuServiceMock.addProductToMenu(addProductToMenuInput));
 
         assertEquals("Product is already exist in menu", exception.getMessage());
+    }
+
+    @DisplayName("deleteProductToMenu should return menuPayload when given id and product id is exist in deleteProductFromMenuInput")
+    @Test
+    void testDeleteProductToMenu_success(){
+        DeleteProductFromMenuInput deleteProductFromMenuInput = new DeleteProductFromMenuInput("test_id","test_product_id");
+        Product product = new Product("test_product_id", "test_product_name", "", "", 100.0, ProductStatusEnums.READY);
+        menuMock.getProducts().add(product);
+
+        when(menuRepositoryMock.findById(deleteProductFromMenuInput.getMenuId())).thenReturn(Optional.ofNullable(menuMock));
+        when(productServiceMock.getProductById(deleteProductFromMenuInput.getProductId())).thenReturn(product);
+
+        MenuPayload result = menuServiceMock.deleteProductToMenu(deleteProductFromMenuInput);
+
+        assertEquals(0, menuMock.getProducts().size());
+    }
+
+    @DisplayName("deleteProductToMenu should throw custom exception menuNotFound when given menu id does not exist in deleteProductFromMenuInput")
+    @Test
+    void testDeleteProductToMenu_menuNotFound(){
+        DeleteProductFromMenuInput deleteProductFromMenuInput = new DeleteProductFromMenuInput("test_id","test_product_id");
+
+        when(menuRepositoryMock.findById(deleteProductFromMenuInput.getMenuId())).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class, () -> menuServiceMock.deleteProductToMenu(deleteProductFromMenuInput));
+
+        assertEquals("Menu not found", exception.getMessage());
+    }
+
+    @DisplayName("deleteProductToMenu should throw custom exception productDoesNotExistInMenu when given menu id is exist and product id does not exist in menuProducts at deleteProductToMenuInput")
+    @Test
+    void testDeleteProductToMenu_productDoesNotExistInMenu(){
+        DeleteProductFromMenuInput deleteProductFromMenuInput = new DeleteProductFromMenuInput("test_id","test_product_id");
+
+        when(menuRepositoryMock.findById(deleteProductFromMenuInput.getMenuId())).thenReturn(Optional.ofNullable(menuMock));
+        when(productServiceMock.getProductById(deleteProductFromMenuInput.getProductId())).thenReturn(productMock);
+
+        CustomException exception = assertThrows(CustomException.class, ()-> menuServiceMock.deleteProductToMenu(deleteProductFromMenuInput));
+
+        assertEquals("Product does not exist in menu",exception.getMessage());
     }
 
     @AfterEach

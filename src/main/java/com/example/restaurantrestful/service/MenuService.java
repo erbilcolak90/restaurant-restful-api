@@ -2,6 +2,7 @@ package com.example.restaurantrestful.service;
 
 import com.example.restaurantrestful.dto.inputs.menu.AddProductToMenuInput;
 import com.example.restaurantrestful.dto.inputs.menu.CreateMenuInput;
+import com.example.restaurantrestful.dto.inputs.menu.DeleteProductFromMenuInput;
 import com.example.restaurantrestful.dto.payloads.MenuPayload;
 import com.example.restaurantrestful.entity.Menu;
 import com.example.restaurantrestful.entity.Product;
@@ -78,5 +79,22 @@ public class MenuService {
         }else{
             throw CustomException.productIsAlreadyExistInMenu();
         }
+    }
+
+    @Transactional
+    public MenuPayload deleteProductToMenu(DeleteProductFromMenuInput deleteProductFromMenuInput){
+        Menu dbMenu = menuRepository.findById(deleteProductFromMenuInput.getMenuId()).orElseThrow(CustomException::menuNotFound);
+        Product dbProduct = productService.getProductById(deleteProductFromMenuInput.getProductId());
+
+        if(dbMenu.getProducts().contains(dbProduct)){
+            dbMenu.getProducts().remove(dbProduct);
+            dbMenu.setUpdateDate(new Date());
+            menuRepository.save(dbMenu);
+
+            return MenuPayload.convert(dbMenu);
+        }else{
+            throw CustomException.productDoesNotExistInMenu();
+        }
+
     }
 }
