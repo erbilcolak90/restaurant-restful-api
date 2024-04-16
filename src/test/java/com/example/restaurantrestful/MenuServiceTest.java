@@ -1,5 +1,6 @@
 package com.example.restaurantrestful;
 
+import com.example.restaurantrestful.dto.inputs.menu.AddProductToMenuInput;
 import com.example.restaurantrestful.dto.inputs.menu.CreateMenuInput;
 import com.example.restaurantrestful.dto.payloads.MenuPayload;
 import com.example.restaurantrestful.entity.Menu;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class MenuServiceTest {
+class MenuServiceTest {
 
     @InjectMocks
     private MenuService menuServiceMock;
@@ -40,18 +41,22 @@ public class MenuServiceTest {
 
     private Menu menuMock;
 
+    private Product productMock;
+
     @BeforeEach
-    void setUp(){
+    void setUp() {
         menuMock = new Menu();
         menuMock.setId("test_id");
         menuMock.setName("test_menu_name");
         menuMock.setProducts(new ArrayList<>());
 
+        productMock = new Product("test_product_id", "test_product_name", "", "", 100.0, ProductStatusEnums.READY);
+
     }
 
     @DisplayName("getMenuById should return valid menuPayload when given id is exist")
     @Test
-    void testGetMenuById_success(){
+    void testGetMenuById_success() {
         String test_id = "test_id";
 
         when(menuRepositoryMock.findById(test_id)).thenReturn(Optional.ofNullable(menuMock));
@@ -63,16 +68,16 @@ public class MenuServiceTest {
 
     @DisplayName("getMenuById should throw custom exception menuNotFound when given id does not exist")
     @Test
-    void testGetMenuById_menuNotFound(){
+    void testGetMenuById_menuNotFound() {
 
         when(menuRepositoryMock.findById(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(CustomException.class, ()-> menuServiceMock.getMenuById(anyString()));
+        assertThrows(CustomException.class, () -> menuServiceMock.getMenuById(anyString()));
     }
 
     @DisplayName("getAllMenus should return list menuPayload")
     @Test
-    void testGetAllMenu_success(){
+    void testGetAllMenu_success() {
         Menu menu1 = new Menu();
         Menu menu2 = new Menu();
         Menu menu3 = new Menu();
@@ -92,18 +97,18 @@ public class MenuServiceTest {
         List<MenuPayload> result = menuServiceMock.getAllMenus();
 
         assertNotNull(result);
-        assertEquals(3,result.size());
+        assertEquals(3, result.size());
 
     }
 
     @DisplayName("createMenu should return menuPayload when given menu name does not exist in createMenuInput")
     @Test
-    void testCreateMenu_success(){
+    void testCreateMenu_success() {
         String menuName = "test_menu_name";
         List<String> productIds = Arrays.asList("1");
         CreateMenuInput createMenuInput = new CreateMenuInput(menuName, productIds);
 
-        Product product = new Product("test_product_id","test_product_name","","",100.0, ProductStatusEnums.READY);
+        Product product = new Product("test_product_id", "test_product_name", "", "", 100.0, ProductStatusEnums.READY);
         menuMock.getProducts().add(product);
 
         when(menuRepositoryMock.findByName(menuName.toLowerCase())).thenReturn(Optional.empty());
@@ -119,18 +124,59 @@ public class MenuServiceTest {
 
     @DisplayName("createMenu should throw custom exception menuNameIsAlreadyExist when given menu name is exist in createMenuInput")
     @Test
-    void testCreateMenu_menuNameIsAlreadyExist(){
+    void testCreateMenu_menuNameIsAlreadyExist() {
         String menuName = "test_menu_name";
         List<String> productIds = Arrays.asList("1");
         CreateMenuInput createMenuInput = new CreateMenuInput(menuName, productIds);
 
         when(menuRepositoryMock.findByName(createMenuInput.getName().toLowerCase())).thenReturn(Optional.ofNullable(menuMock));
 
-        assertThrows(CustomException.class, ()-> menuServiceMock.createMenu(createMenuInput));
+        assertThrows(CustomException.class, () -> menuServiceMock.createMenu(createMenuInput));
+    }
+
+    @DisplayName("addProductToMenu should return valid menuPayload when given menu id is exist and productId is exist in addProductToMenuInput")
+    @Test
+    void testAddProductToMenu_success() {
+        AddProductToMenuInput addProductToMenuInput = new AddProductToMenuInput("test_id", "test_product_id");
+        Product product = new Product("test_product_id", "test_product_name", "", "", 100.0, ProductStatusEnums.READY);
+
+        when(menuRepositoryMock.findById(addProductToMenuInput.getMenuId())).thenReturn(Optional.ofNullable(menuMock));
+        when(productServiceMock.getProductById(addProductToMenuInput.getProductId())).thenReturn(product);
+
+        MenuPayload result = menuServiceMock.addProductToMenu(addProductToMenuInput);
+
+        assertEquals(1, menuMock.getProducts().size());
+    }
+
+    @DisplayName("addProductToMenu should throw custom exception menuNotFound when given menu id does not exist in addProductToMenuInput")
+    @Test
+    void testAddProductToMenu_menuNotFound() {
+        AddProductToMenuInput addProductToMenuInput = new AddProductToMenuInput("test_id", "test_product_id");
+
+        when(menuRepositoryMock.findById(addProductToMenuInput.getMenuId())).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class, () -> menuServiceMock.addProductToMenu(addProductToMenuInput));
+
+        assertEquals("Menu not found", exception.getMessage());
+    }
+
+    @DisplayName("addProductToMenu should throw custom exception productIsAlreadyExistInMenu when given menu id is exist and product id exist in menuProducts list in addProductToMenuInput")
+    @Test
+    void testAddProductToMenu_productIsAlreadyExistInMenu() {
+        AddProductToMenuInput addProductToMenuInput = new AddProductToMenuInput("test_id", "test_product_id");
+        Product product = new Product("test_product_id", "test_product_name", "", "", 100.0, ProductStatusEnums.READY);
+        menuMock.getProducts().add(productMock);
+
+        when(menuRepositoryMock.findById(addProductToMenuInput.getMenuId())).thenReturn(Optional.ofNullable(menuMock));
+        when(productServiceMock.getProductById(addProductToMenuInput.getProductId())).thenReturn(product);
+
+        CustomException exception = assertThrows(CustomException.class, () -> menuServiceMock.addProductToMenu(addProductToMenuInput));
+
+        assertEquals("Product is already exist in menu", exception.getMessage());
     }
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
 
     }
 }
