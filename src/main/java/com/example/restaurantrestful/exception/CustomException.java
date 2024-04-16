@@ -101,4 +101,8 @@ public class CustomException extends RuntimeException {
     public static CustomException menuNotFound() {
         return new CustomException("Menu not found");
     }
+
+    public static CustomException menuNameIsAlreadyExist() {
+        return new CustomException("Menu name is already exist");
+    }
 }
