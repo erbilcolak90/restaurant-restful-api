@@ -97,4 +97,8 @@ public class CustomException extends RuntimeException {
     public static CustomException orderIsAlreadyCompleted() {
         return new CustomException("Order is already completed");
     }
+
+    public static CustomException menuNotFound() {
+        return new CustomException("Menu not found");
+    }
 }

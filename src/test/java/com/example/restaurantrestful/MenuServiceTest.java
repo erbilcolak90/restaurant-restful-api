@@ -1,8 +1,7 @@
 package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.entity.Menu;
-import com.example.restaurantrestful.repository.jpa.MenuRepository;
-import com.example.restaurantrestful.service.MenuProductService;
+import com.example.restaurantrestful.repository.elastic.MenuRepository;
 import com.example.restaurantrestful.service.MenuService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,9 +18,6 @@ public class MenuServiceTest {
 
     @Mock
     private MenuRepository menuRepositoryMock;
-
-    @Mock
-    private MenuProductService menuProductServiceMock;
 
     private Menu menuMock;
 
