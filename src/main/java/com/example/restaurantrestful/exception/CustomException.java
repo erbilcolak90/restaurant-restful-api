@@ -105,4 +105,8 @@ public class CustomException extends RuntimeException {
     public static CustomException menuNameIsAlreadyExist() {
         return new CustomException("Menu name is already exist");
     }
+
+    public static CustomException productIsAlreadyExistInMenu() {
+        return new CustomException("Product is already exist in menu");
+    }
 }

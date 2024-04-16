@@ -1,5 +1,6 @@
 package com.example.restaurantrestful.service;
 
+import com.example.restaurantrestful.dto.inputs.menu.AddProductToMenuInput;
 import com.example.restaurantrestful.dto.inputs.menu.CreateMenuInput;
 import com.example.restaurantrestful.dto.payloads.MenuPayload;
 import com.example.restaurantrestful.entity.Menu;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -59,6 +61,22 @@ public class MenuService {
            dbMenu = menuRepository.save(dbMenu);
 
             return MenuPayload.convert(dbMenu);
+        }
+    }
+
+    @Transactional
+    public MenuPayload addProductToMenu(AddProductToMenuInput addProductToMenuInput){
+        Menu dbMenu = menuRepository.findById(addProductToMenuInput.getMenuId()).orElseThrow(CustomException::menuNotFound);
+        Product dbProduct = productService.getProductById(addProductToMenuInput.getProductId());
+
+        if(!dbMenu.getProducts().contains(dbProduct)){
+            dbMenu.getProducts().add(dbProduct);
+            dbMenu.setUpdateDate(new Date());
+            menuRepository.save(dbMenu);
+
+            return MenuPayload.convert(dbMenu);
+        }else{
+            throw CustomException.productIsAlreadyExistInMenu();
         }
     }
 }
