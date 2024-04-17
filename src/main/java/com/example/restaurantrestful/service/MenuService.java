@@ -1,6 +1,7 @@
 package com.example.restaurantrestful.service;
 
 import com.example.restaurantrestful.dto.inputs.menu.AddProductToMenuInput;
+import com.example.restaurantrestful.dto.inputs.menu.ChangeMenuNameInput;
 import com.example.restaurantrestful.dto.inputs.menu.CreateMenuInput;
 import com.example.restaurantrestful.dto.inputs.menu.DeleteProductFromMenuInput;
 import com.example.restaurantrestful.dto.payloads.MenuPayload;
@@ -96,5 +97,21 @@ public class MenuService {
             throw CustomException.productDoesNotExistInMenu();
         }
 
+    }
+
+    @Transactional
+    public MenuPayload changeMenuName(ChangeMenuNameInput changeMenuNameInput){
+        Menu dbMenu = menuRepository.findById(changeMenuNameInput.getMenuId()).orElseThrow(CustomException::menuNotFound);
+        Menu isExistName = menuRepository.findByName(changeMenuNameInput.getNewName().toLowerCase()).orElse(null);
+
+        if(isExistName == null){
+            dbMenu.setName(changeMenuNameInput.getNewName().toLowerCase());
+            dbMenu.setUpdateDate(new Date());
+            menuRepository.save(dbMenu);
+
+            return MenuPayload.convert(dbMenu);
+        }else{
+            throw CustomException.menuNameIsAlreadyExist();
+        }
     }
 }

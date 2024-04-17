@@ -1,6 +1,7 @@
 package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.dto.inputs.menu.AddProductToMenuInput;
+import com.example.restaurantrestful.dto.inputs.menu.ChangeMenuNameInput;
 import com.example.restaurantrestful.dto.inputs.menu.CreateMenuInput;
 import com.example.restaurantrestful.dto.inputs.menu.DeleteProductFromMenuInput;
 import com.example.restaurantrestful.dto.payloads.MenuPayload;
@@ -214,6 +215,43 @@ class MenuServiceTest {
         CustomException exception = assertThrows(CustomException.class, ()-> menuServiceMock.deleteProductToMenu(deleteProductFromMenuInput));
 
         assertEquals("Product does not exist in menu",exception.getMessage());
+    }
+
+    @DisplayName("changeMenuName should return menuPayload when given menu id is exist and given name does not exist on db from changeMenuNameInput")
+    @Test
+    void testChangeMenuName_success(){
+        ChangeMenuNameInput changeMenuNameInput = new ChangeMenuNameInput("test_id","test_name");
+
+        when(menuRepositoryMock.findById(changeMenuNameInput.getMenuId())).thenReturn(Optional.ofNullable(menuMock));
+        when(menuRepositoryMock.findByName(changeMenuNameInput.getNewName().toLowerCase())).thenReturn(Optional.empty());
+
+        MenuPayload result = menuServiceMock.changeMenuName(changeMenuNameInput);
+
+        assertNotNull(result);
+    }
+
+    @DisplayName("changeMenuName should throw custom exception menuNameIsAlreadyExist when given id and name is exist in changeMenuNameInput")
+    @Test
+    void testChangeMenuName_menuNameIsAlreadyExist(){
+        ChangeMenuNameInput changeMenuNameInput = new ChangeMenuNameInput("test_id","test_name");
+
+        when(menuRepositoryMock.findById(changeMenuNameInput.getMenuId())).thenReturn(Optional.ofNullable(menuMock));
+        when(menuRepositoryMock.findByName(changeMenuNameInput.getNewName().toLowerCase())).thenReturn(Optional.ofNullable(new Menu()));
+
+        assertThrows(CustomException.class,()-> menuServiceMock.changeMenuName(changeMenuNameInput));
+
+    }
+
+    @DisplayName("changeMenuName should throw custom exception menuNotFound when given menu id does not exist in changeMenuNameInput")
+    @Test
+    void testChangeMenuName_menuNotFound(){
+        ChangeMenuNameInput changeMenuNameInput = new ChangeMenuNameInput("test_id","test_name");
+
+        when(menuRepositoryMock.findById(changeMenuNameInput.getMenuId())).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class, () -> menuServiceMock.changeMenuName(changeMenuNameInput));
+
+        assertEquals("Menu not found", exception.getMessage());
     }
 
     @AfterEach
