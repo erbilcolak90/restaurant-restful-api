@@ -254,6 +254,40 @@ class MenuServiceTest {
         assertEquals("Menu not found", exception.getMessage());
     }
 
+    @DisplayName("deleteMenu should return true when given menu id is exist and isDeletedFalse")
+    @Test
+    void testDeleteMenu_success(){
+        String id = "test_id";
+
+        when(menuRepositoryMock.findById(id)).thenReturn(Optional.ofNullable(menuMock));
+
+        assertTrue(menuServiceMock.deleteMenu(id));
+    }
+
+    @DisplayName("deleteMenu should throw custom exception menuIsAlreadyDeleted when given menu id is exist but isDeleted true")
+    @Test
+    void testDeleteMenu_menuIsAlreadyDeleted(){
+        String id = "test_id";
+        menuMock.setDeleted(true);
+        when(menuRepositoryMock.findById(id)).thenReturn(Optional.ofNullable(menuMock));
+
+        CustomException exception = assertThrows(CustomException.class, () -> menuServiceMock.deleteMenu(id));
+
+        assertEquals("Menu is already deleted", exception.getMessage());
+    }
+
+    @DisplayName("deleteMenu should throw custom exception menuNotFound when given menu id does not exist")
+    @Test
+    void testDeleteMenu_menuNotFound(){
+        String id = "test_id";
+
+        when(menuRepositoryMock.findById(id)).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class, () -> menuServiceMock.deleteMenu(id));
+
+        assertEquals("Menu not found", exception.getMessage());
+    }
+
     @AfterEach
     void tearDown() {
 
