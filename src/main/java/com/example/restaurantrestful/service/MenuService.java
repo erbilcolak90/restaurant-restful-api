@@ -114,4 +114,19 @@ public class MenuService {
             throw CustomException.menuNameIsAlreadyExist();
         }
     }
+
+    @Transactional
+    public boolean deleteMenu(String menuId){
+        Menu dbMenu = menuRepository.findById(menuId).orElseThrow(CustomException::menuNotFound);
+
+        if(dbMenu.isDeleted()){
+            throw CustomException.menuIsAlreadyDeleted();
+        }else{
+            dbMenu.setDeleted(true);
+            dbMenu.setUpdateDate(new Date());
+            menuRepository.save(dbMenu);
+
+            return true;
+        }
+    }
 }

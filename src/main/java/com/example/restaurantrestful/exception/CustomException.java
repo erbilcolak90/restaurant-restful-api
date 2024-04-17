@@ -113,4 +113,8 @@ public class CustomException extends RuntimeException {
     public static CustomException productDoesNotExistInMenu() {
         return new CustomException("Product does not exist in menu");
     }
+
+    public static CustomException menuIsAlreadyDeleted() {
+        return new CustomException("Menu is already deleted");
+    }
 }

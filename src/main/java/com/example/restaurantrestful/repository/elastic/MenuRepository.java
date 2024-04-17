@@ -8,6 +8,9 @@ import java.util.Optional;
 
 public interface MenuRepository extends ElasticsearchRepository<Menu, String> {
 
-    @Query("{\"bool\": {\"must\": {\"match\" : {\"name\": \"?\"}}}}")
+    @Query("{\"bool\": {\"must\": {\"match\" : {\"name\": \"?0\"}}}}")
     Optional<Menu> findByName(String name);
+
+    @Query("{\"bool\": {\"must\": {\"match\": {\"id\": \"?0\"}, {\"match\": {\"isDeleted\": \"false\"}}}}")
+    Optional<Menu> findByIsDeletedFalse(String id);
 }
