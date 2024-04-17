@@ -1,5 +1,7 @@
 package com.example.restaurantrestful.service;
 
+import com.example.restaurantrestful.entity.Invoice;
+import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.elastic.InvoiceRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,5 +15,9 @@ public class InvoiceService {
     public InvoiceService(InvoiceRepository invoiceRepository, OrderService orderService) {
         this.invoiceRepository = invoiceRepository;
         this.orderService = orderService;
+    }
+
+    public Invoice getInvoiceById(String id){
+        return invoiceRepository.findById(id).orElseThrow(CustomException::invoiceNotFound);
     }
 }

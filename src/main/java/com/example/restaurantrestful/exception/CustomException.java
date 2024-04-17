@@ -117,4 +117,8 @@ public class CustomException extends RuntimeException {
     public static CustomException menuIsAlreadyDeleted() {
         return new CustomException("Menu is already deleted");
     }
+
+    public static CustomException invoiceNotFound() {
+        return new CustomException("Invoice not found");
+    }
 }
