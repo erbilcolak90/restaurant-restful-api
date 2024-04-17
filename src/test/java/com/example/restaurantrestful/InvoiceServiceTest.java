@@ -64,6 +64,27 @@ class InvoiceServiceTest {
         assertThrows(CustomException.class, ()-> invoiceServiceMock.getInvoiceById(test_id));
     }
 
+    @DisplayName("getInvoiceByOrderId should return valid invoice when given id is exist")
+    @Test
+    void testGetInvoiceByOrderId_success(){
+        String order_id = "test_order_id";
+
+        when(invoiceRepositoryMock.findByOrderId(order_id)).thenReturn(Optional.ofNullable(invoiceMock));
+
+        assertNotNull(invoiceServiceMock.getInvoiceByOrderId(order_id));
+
+    }
+
+    @DisplayName("getInvoiceByOrderId should throw custom exception invoiceNotFound when given order id does not exist")
+    @Test
+    void testGetInvoiceByOrderId_invoiceNotFound(){
+        String order_id = "test_order_id";
+
+        when(invoiceRepositoryMock.findByOrderId(order_id)).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class, ()-> invoiceServiceMock.getInvoiceByOrderId(order_id));
+    }
+
 
     @AfterEach
     void tearDown(){

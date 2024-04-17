@@ -20,4 +20,8 @@ public class InvoiceService {
     public Invoice getInvoiceById(String id){
         return invoiceRepository.findById(id).orElseThrow(CustomException::invoiceNotFound);
     }
+
+    public Invoice getInvoiceByOrderId(String orderId){
+        return invoiceRepository.findByOrderId(orderId).orElseThrow(CustomException::invoiceNotFound);
+    }
 }
