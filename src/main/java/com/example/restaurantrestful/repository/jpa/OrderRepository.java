@@ -10,10 +10,9 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, String > {
 
-    @Query("SELECT * FROM Orders WHERE is_completed = false")
     List<Order> findByIsCompletedFalse();
 
     List<Order> findByCreateDateBetween(LocalDate startDate, LocalDate endDate);
 
-    Optional<Order> findByIdAndDeletedFalse(String id);
+    Optional<Order> findByIdAndIsDeletedFalse(String id);
 }
