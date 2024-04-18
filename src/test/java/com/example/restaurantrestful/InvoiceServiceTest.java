@@ -1,5 +1,7 @@
 package com.example.restaurantrestful;
 
+import co.elastic.clients.util.DateTime;
+import com.example.restaurantrestful.dto.inputs.invoice.GetInvoiceByDateRangeInput;
 import com.example.restaurantrestful.entity.Invoice;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.elastic.InvoiceRepository;
@@ -14,7 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -83,6 +88,29 @@ class InvoiceServiceTest {
         when(invoiceRepositoryMock.findByOrderId(order_id)).thenReturn(Optional.empty());
 
         assertThrows(CustomException.class, ()-> invoiceServiceMock.getInvoiceByOrderId(order_id));
+    }
+
+    @DisplayName("getInvoiceByDateRange should return list invoice when given string startDate and endDate")
+    @Test
+    void testGetInvoiceByDateRange_success(){
+
+        LocalDate startDate = LocalDate.of(2024,3,24);
+        LocalDate endDate = LocalDate.of(2024,5,20);
+        GetInvoiceByDateRangeInput getInvoiceByDateRangeInput = new GetInvoiceByDateRangeInput(startDate,endDate);
+
+        Date start_date = Date.from(getInvoiceByDateRangeInput.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date end_date = Date.from(getInvoiceByDateRangeInput.getEndDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Invoice invoice = new Invoice();
+        invoice.setCreateDate(Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        List<Invoice> invoiceList = Arrays.asList(invoice);
+
+        when(invoiceRepositoryMock.findByDateRange(start_date,end_date)).thenReturn(invoiceList);
+
+        List<Invoice> result = invoiceServiceMock.getInvoiceByDateRange(getInvoiceByDateRangeInput);
+
+        assertNotNull(result);
     }
 
 
