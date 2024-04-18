@@ -1,6 +1,5 @@
 package com.example.restaurantrestful;
 
-import co.elastic.clients.util.DateTime;
 import com.example.restaurantrestful.dto.inputs.invoice.GetInvoiceByDateRangeInput;
 import com.example.restaurantrestful.entity.Invoice;
 import com.example.restaurantrestful.entity.Order;
@@ -20,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -189,6 +187,37 @@ class InvoiceServiceTest {
         when(invoiceRepositoryMock.findById(id)).thenReturn(Optional.ofNullable(invoiceMock));
 
         assertThrows(CustomException.class, () -> invoiceServiceMock.completeInvoice(id));
+    }
+
+    @DisplayName("deleteInvoice should return true when given id is exist and invoice isDeleted false")
+    @Test
+    void testDeleteInvoice_success(){
+        String id = "test_id";
+
+        when(invoiceRepositoryMock.findById(id)).thenReturn(Optional.ofNullable(invoiceMock));
+
+        assertTrue(invoiceServiceMock.deleteInvoice(id));
+    }
+
+    @DisplayName("deleteInvoice should throw custom exception invoiceNotFound when given id does not exist")
+    @Test
+    void testDeleteInvoice_invoiceNotFound(){
+        String id = "test_id";
+
+        when(invoiceRepositoryMock.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(CustomException.class,()-> invoiceServiceMock.deleteInvoice(id));
+
+    }
+
+    @DisplayName("deleteInvoice should throw custom exception invoiceIsAlreadyDeleted when given id is exist but invoice isDeleted true")
+    @Test
+    void testDeleteInvoice_invoiceIsAlreadyDeleted(){
+        String id = "test_id";
+        invoiceMock.setDeleted(true);
+        when(invoiceRepositoryMock.findById(id)).thenReturn(Optional.ofNullable(invoiceMock));
+
+        assertThrows(CustomException.class,()-> invoiceServiceMock.deleteInvoice(id));
     }
 
 

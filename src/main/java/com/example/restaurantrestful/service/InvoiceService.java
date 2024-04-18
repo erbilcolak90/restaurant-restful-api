@@ -83,4 +83,19 @@ public class InvoiceService {
             }
         }
     }
+
+    @Transactional
+    public boolean deleteInvoice(String id){
+        Invoice dbInvoice = invoiceRepository.findById(id).orElseThrow(CustomException::invoiceNotFound);
+
+        if(dbInvoice.isDeleted()){
+            throw CustomException.invoiceIsAlreadyDeleted();
+        }else{
+            dbInvoice.setDeleted(true);
+            dbInvoice.setUpdateDate(new Date());
+            invoiceRepository.save(dbInvoice);
+
+            return true;
+        }
+    }
 }
