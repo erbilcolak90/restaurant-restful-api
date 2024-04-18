@@ -137,4 +137,8 @@ public class CustomException extends RuntimeException {
     public static CustomException invoiceIsAlreadyDeleted() {
         return new CustomException("Invoice is already deleted");
     }
+
+    public static CustomException paymentNotFound() {
+        return new CustomException("Payment not found");
+    }
 }
