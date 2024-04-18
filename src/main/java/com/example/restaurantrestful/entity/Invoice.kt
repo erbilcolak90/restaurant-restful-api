@@ -15,8 +15,8 @@ data class Invoice @JvmOverloads constructor(
         var orderId: String,
         @Field(type = FieldType.Double)
         var price: Double,
-        @Field(type = FieldType.Keyword)
-        var payment: PaymentTypeEnums,
+        @Field(type = FieldType.Nested)
+        var payment: HashMap<PaymentTypeEnums,Double>?,
         @Field(type = FieldType.Boolean)
-        var isCompleted: Boolean
+        var isCompleted: Boolean=false
 ): BaseEntity()

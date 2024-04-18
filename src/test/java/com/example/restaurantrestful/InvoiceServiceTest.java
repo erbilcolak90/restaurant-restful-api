@@ -3,6 +3,7 @@ package com.example.restaurantrestful;
 import co.elastic.clients.util.DateTime;
 import com.example.restaurantrestful.dto.inputs.invoice.GetInvoiceByDateRangeInput;
 import com.example.restaurantrestful.entity.Invoice;
+import com.example.restaurantrestful.entity.Order;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.elastic.InvoiceRepository;
 import com.example.restaurantrestful.service.InvoiceService;
@@ -45,6 +46,7 @@ class InvoiceServiceTest {
         invoiceMock.setOrderId("test_order_id");
         invoiceMock.setPrice(100.0);
         invoiceMock.setCompleted(false);
+        invoiceMock.setPayment(new HashMap<>());
 
     }
 
@@ -111,6 +113,37 @@ class InvoiceServiceTest {
         List<Invoice> result = invoiceServiceMock.getInvoiceByDateRange(getInvoiceByDateRangeInput);
 
         assertNotNull(result);
+    }
+
+    @DisplayName("createInvoice should return valid invoice when given orderId is exist and order hasn't yet invoice")
+    @Test
+    void testCreateInvoice_success(){
+        String order_id = "test_order_id";
+        Order order = new Order();
+        order.setId("test_order_id");
+        order.setTotalPrice(100.0);
+
+        when(orderServiceMock.getOrderById(order_id)).thenReturn(order);
+        when(invoiceRepositoryMock.save(any(Invoice.class))).thenReturn(invoiceMock);
+
+        Invoice result = invoiceServiceMock.createInvoice(order_id);
+
+        assertNotNull(result);
+    }
+
+    @DisplayName("createInvoice should throw custom exception orderHasAlreadyInvoiced when given orderId is exist and order has already invoice")
+    @Test
+    void testCreateInvoice_orderHasAlreadyInvoiced(){
+        String order_id = "test_order_id";
+        Order order = new Order();
+        order.setId("test_order_id");
+        order.setTotalPrice(100.0);
+        when(orderServiceMock.getOrderById(order_id)).thenReturn(order);
+        when(invoiceRepositoryMock.findByOrderId(order_id)).thenReturn(Optional.ofNullable(invoiceMock));
+
+        CustomException exception = assertThrows(CustomException.class,()-> invoiceServiceMock.createInvoice(order_id));
+
+        assertEquals("Order has already invoiced. Invoice id : " + invoiceMock.getId(), exception.getMessage());
     }
 
 

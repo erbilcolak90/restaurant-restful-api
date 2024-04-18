@@ -121,4 +121,8 @@ public class CustomException extends RuntimeException {
     public static CustomException invoiceNotFound() {
         return new CustomException("Invoice not found");
     }
+
+    public static CustomException orderHasAlreadyInvoiced(String invoiceId) {
+        return new CustomException("Order has already invoiced. Invoice id : " + invoiceId);
+    }
 }
