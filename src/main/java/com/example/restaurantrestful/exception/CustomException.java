@@ -125,4 +125,12 @@ public class CustomException extends RuntimeException {
     public static CustomException orderHasAlreadyInvoiced(String invoiceId) {
         return new CustomException("Order has already invoiced. Invoice id : " + invoiceId);
     }
+
+    public static CustomException invoicePaymentIsAlreadyCompleted(String id) {
+        return new CustomException("Invoice payment is already completed. Invoice id : "+ id);
+    }
+
+    public static CustomException paymentNotCompleted(double balance) {
+        return new CustomException("Payment is not completed. the amount to be complete : "+ balance);
+    }
 }

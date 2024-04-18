@@ -3,6 +3,7 @@ package com.example.restaurantrestful.service;
 import com.example.restaurantrestful.dto.inputs.invoice.GetInvoiceByDateRangeInput;
 import com.example.restaurantrestful.entity.Invoice;
 import com.example.restaurantrestful.entity.Order;
+import com.example.restaurantrestful.enums.PaymentTypeEnums;
 import com.example.restaurantrestful.exception.CustomException;
 import com.example.restaurantrestful.repository.elastic.InvoiceRepository;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class InvoiceService {
@@ -44,7 +46,7 @@ public class InvoiceService {
         Order dbOrder = orderService.getOrderById(orderId);
 
         Invoice dbInvoice = invoiceRepository.findByOrderId(orderId).orElse(new Invoice());
-        if(dbInvoice.getOrderId() != dbOrder.getId()){
+        if (dbInvoice.getOrderId() != dbOrder.getId()) {
 
             dbInvoice.setOrderId(dbOrder.getId());
             dbInvoice.setPrice(dbOrder.getTotalPrice());
@@ -53,8 +55,32 @@ public class InvoiceService {
             Invoice invoice = invoiceRepository.save(dbInvoice);
 
             return invoice;
-        }else{
+        } else {
             throw CustomException.orderHasAlreadyInvoiced(dbInvoice.getId());
+        }
+    }
+
+    @Transactional
+    public boolean completeInvoice(String id) {
+        Invoice dbInvoice = invoiceRepository.findById(id).orElseThrow(CustomException::invoiceNotFound);
+
+        if (dbInvoice.isCompleted()) {
+            throw CustomException.invoicePaymentIsAlreadyCompleted(id);
+        } else {
+            int total = 0;
+            for (Map.Entry<PaymentTypeEnums, Double> item : dbInvoice.getPayment().entrySet()) {
+                total += item.getValue();
+            }
+            if (total == dbInvoice.getPrice()) {
+                dbInvoice.setCompleted(true);
+                dbInvoice.setUpdateDate(new Date());
+                invoiceRepository.save(dbInvoice);
+
+                return true;
+            } else {
+                double balance = dbInvoice.getPrice() - total;
+                throw CustomException.paymentNotCompleted(balance);
+            }
         }
     }
 }
