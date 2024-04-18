@@ -133,4 +133,8 @@ public class CustomException extends RuntimeException {
     public static CustomException paymentNotCompleted(double balance) {
         return new CustomException("Payment is not completed. the amount to be complete : "+ balance);
     }
+
+    public static CustomException invoiceIsAlreadyDeleted() {
+        return new CustomException("Invoice is already deleted");
+    }
 }
