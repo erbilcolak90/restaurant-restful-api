@@ -74,7 +74,7 @@ public class OrderService {
 
     @Transactional
     public Order addProductToOrder(AddProductToOrderInput addProductToOrderInput) {
-        Order dbOrder = orderRepository.findByIdAndDeletedFalse(addProductToOrderInput.getOrderId()).orElseThrow(CustomException::orderNotFound);
+        Order dbOrder = orderRepository.findByIdAndIsDeletedFalse(addProductToOrderInput.getOrderId()).orElseThrow(CustomException::orderNotFound);
         CreateOrderProductInput createOrderProductInput = new CreateOrderProductInput(addProductToOrderInput.getOrderId(), addProductToOrderInput.getProductName(), addProductToOrderInput.getQuantity());
         OrderProductPayload orderProductPayload = orderProductService.createOrderProduct(createOrderProductInput);
         dbOrder.getOrderProductIds().add(orderProductPayload.getId());
@@ -88,7 +88,7 @@ public class OrderService {
 
     @Transactional
     public Order deleteProductFromOrder(DeleteProductFromOrderInput deleteProductFromOrderInput){
-        Order dbOrder = orderRepository.findByIdAndDeletedFalse(deleteProductFromOrderInput.getOrderId()).orElseThrow(CustomException::orderNotFound);
+        Order dbOrder = orderRepository.findByIdAndIsDeletedFalse(deleteProductFromOrderInput.getOrderId()).orElseThrow(CustomException::orderNotFound);
         DeleteOrderProductInput deleteOrderProductInput = new DeleteOrderProductInput(deleteProductFromOrderInput.getOrderId(), deleteProductFromOrderInput.getProductName().toLowerCase(), deleteProductFromOrderInput.getQuantity());
 
         boolean result = orderProductService.deleteOrderProduct(deleteOrderProductInput);

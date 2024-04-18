@@ -182,7 +182,7 @@ class OrderServiceTest {
         CreateOrderProductInput createOrderProductInput = new CreateOrderProductInput("test_id", "test_product_name_1",2);
         OrderProductPayload orderProductPayload = new OrderProductPayload("test_orderProduct_id_1", "test_id", "test_product_id_1",100.0);
 
-        when(orderRepositoryMock.findByIdAndDeletedFalse(addProductToOrderInput.getOrderId())).thenReturn(Optional.ofNullable(orderMock));
+        when(orderRepositoryMock.findByIdAndIsDeletedFalse(addProductToOrderInput.getOrderId())).thenReturn(Optional.ofNullable(orderMock));
         when(orderProductServiceMock.createOrderProduct(createOrderProductInput)).thenReturn(orderProductPayload);
 
         Order result = orderServiceMock.addProductToOrder(addProductToOrderInput);
@@ -197,7 +197,7 @@ class OrderServiceTest {
     void testAddProductToOrder_orderNotFound(){
         AddProductToOrderInput addProductToOrderInput = new AddProductToOrderInput("test_id","test_product_name_1",2);
 
-        when(orderRepositoryMock.findByIdAndDeletedFalse(addProductToOrderInput.getOrderId())).thenReturn(Optional.empty());
+        when(orderRepositoryMock.findByIdAndIsDeletedFalse(addProductToOrderInput.getOrderId())).thenReturn(Optional.empty());
 
         assertThrows(CustomException.class,()-> orderServiceMock.addProductToOrder(addProductToOrderInput));
     }
@@ -213,7 +213,7 @@ class OrderServiceTest {
         Product product = new Product("test_product_id_1","test_product_name_1","test_food_id","",100.0, ProductStatusEnums.READY);
         OrderProductPayload orderProductPayload = new OrderProductPayload("test_orderProduct_id", "test_id", "test_product_id_1",100.0);
 
-        when(orderRepositoryMock.findByIdAndDeletedFalse(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.ofNullable(orderMock));
+        when(orderRepositoryMock.findByIdAndIsDeletedFalse(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.ofNullable(orderMock));
         when(orderProductServiceMock.deleteOrderProduct(deleteOrderProductInput)).thenReturn(true);
         when(productServiceMock.getProductByName(deleteProductFromOrderInput.getProductName().toLowerCase())).thenReturn(product);
         when(orderProductServiceMock.getOrderProductByProductId(product.getId())).thenReturn(orderProductPayload);
@@ -230,7 +230,7 @@ class OrderServiceTest {
     void testDeleteOrderProductFromOrder_orderNotFound(){
         DeleteProductFromOrderInput deleteProductFromOrderInput = new DeleteProductFromOrderInput("test_id","test_product_name_1",2);
 
-        when(orderRepositoryMock.findByIdAndDeletedFalse(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.empty());
+        when(orderRepositoryMock.findByIdAndIsDeletedFalse(deleteProductFromOrderInput.getOrderId())).thenReturn(Optional.empty());
 
         assertThrows(CustomException.class,()-> orderServiceMock.deleteProductFromOrder(deleteProductFromOrderInput));
     }
