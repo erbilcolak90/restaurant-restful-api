@@ -1,6 +1,7 @@
 package com.example.restaurantrestful;
 
 import com.example.restaurantrestful.dto.inputs.payment.GetPaymentByPaymentTypeInput;
+import com.example.restaurantrestful.entity.Invoice;
 import com.example.restaurantrestful.entity.Payment;
 import com.example.restaurantrestful.enums.PaymentTypeEnums;
 import com.example.restaurantrestful.enums.SortBy;
@@ -19,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -94,6 +96,44 @@ class PaymentServiceTest {
         assertEquals(5,result.getSize());
     }
 
+    @DisplayName("getPaymentByInvoiceId should return list payment when given invoiceId is exist")
+    @Test
+    void testGetPaymentByInvoiceId_success(){
+        String invoiceId = "test_invoice_id";
+        Invoice invoice = new Invoice();
+        invoice.setId("test_invoice_id");
+        invoice.setPrice(100.0);
+        invoice.setPayment(new HashMap<>());
+        invoice.getPayment().put(paymentMock.getPaymentType(),50.0);
+        invoice.getPayment().put(paymentMock.getPaymentType(),50.0);
+        List<Payment> paymentList = new ArrayList<>();
+        paymentList.add(paymentMock);
+        paymentList.add(paymentMock);
+
+        when(invoiceServiceMock.getInvoiceById(invoiceId)).thenReturn(invoice);
+        when(paymentRepositoryMock.findByInvoiceId(invoice.getId())).thenReturn(paymentList);
+
+        List<Payment> result = paymentServiceMock.getPaymentByInvoiceId(invoiceId);
+
+        assertEquals(2,result.size());
+    }
+
+    @DisplayName("getPaymentByInvoiceId should throw custom exception invoiceHasNotAlreadyPayment when given invoice id is exist but payment size equal zero")
+    @Test
+    void testGetPaymentByInvoiceId_invoiceHasNotAlreadyPayment(){
+        String invoiceId = "test_invoice_id";
+        Invoice invoice = new Invoice();
+        invoice.setId("test_invoice_id");
+        invoice.setPrice(100.0);
+        invoice.setPayment(new HashMap<>());
+        List<Payment> paymentList = new ArrayList<>();
+
+        when(invoiceServiceMock.getInvoiceById(invoiceId)).thenReturn(invoice);
+        when(paymentRepositoryMock.findByInvoiceId(invoice.getId())).thenReturn(paymentList);
+
+        assertThrows(CustomException.class, ()-> paymentServiceMock.getPaymentByInvoiceId(invoiceId));
+
+    }
     @AfterEach
     void tearDown(){}
 }
