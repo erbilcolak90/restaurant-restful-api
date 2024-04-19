@@ -145,4 +145,8 @@ public class CustomException extends RuntimeException {
     public static CustomException invoiceHasNotAlreadyPayment() {
         return new CustomException("Invoice has not already payment");
     }
+
+    public static CustomException paymentAmountLessThanInvoiceAmount(double inputTotalPrice, double invoiceTotalPrice) {
+        return new CustomException("Payment amount : " + inputTotalPrice + " less than invoice amount : " + invoiceTotalPrice);
+    }
 }
