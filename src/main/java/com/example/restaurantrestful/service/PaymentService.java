@@ -1,6 +1,7 @@
 package com.example.restaurantrestful.service;
 
 import com.example.restaurantrestful.dto.inputs.payment.GetPaymentByPaymentTypeInput;
+import com.example.restaurantrestful.entity.Invoice;
 import com.example.restaurantrestful.entity.Payment;
 import com.example.restaurantrestful.enums.PaymentTypeEnums;
 import com.example.restaurantrestful.exception.CustomException;
@@ -36,5 +37,16 @@ public class PaymentService {
         Pageable pageable = PageRequest.of(getPaymentByPaymentTypeInput.getPage(), getPaymentByPaymentTypeInput.getSize(), Sort.by(Sort.Direction.valueOf(getPaymentByPaymentTypeInput.getSortBy().toString()),"createDate"));
         
         return paymentRepository.findAll(pageable);
+    }
+
+    public List<Payment> getPaymentByInvoiceId(String invoiceId){
+        Invoice dbInvoice = invoiceService.getInvoiceById(invoiceId);
+        List<Payment> paymentList =  paymentRepository.findByInvoiceId(dbInvoice.getId());
+
+        if(paymentList.size() == 0){
+            throw CustomException.invoiceHasNotAlreadyPayment();
+        }else{
+            return paymentList;
+        }
     }
 }

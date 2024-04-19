@@ -11,4 +11,7 @@ public interface PaymentRepository extends ElasticsearchRepository<Payment, Stri
 
     @Query("{\"bool\": {\"must\": {\"match\" : {\"paymentType\": \"?0\"}}, \"sort\": [{\"createDate\": {\"order\": \"asc\"}}]}}")
     List<Payment> findByPaymentType(PaymentTypeEnums paymentTypeEnums);
+
+    @Query("{\"bool\": {\"must\" : {\"match\" : {\"invoiceId\": \"?0\"}}}}")
+    List<Payment> findByInvoiceId(String invoiceId);
 }

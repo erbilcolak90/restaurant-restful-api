@@ -141,4 +141,8 @@ public class CustomException extends RuntimeException {
     public static CustomException paymentNotFound() {
         return new CustomException("Payment not found");
     }
+
+    public static CustomException invoiceHasNotAlreadyPayment() {
+        return new CustomException("Invoice has not already payment");
+    }
 }
