@@ -149,4 +149,12 @@ public class CustomException extends RuntimeException {
     public static CustomException paymentAmountLessThanInvoiceAmount(double inputTotalPrice, double invoiceTotalPrice) {
         return new CustomException("Payment amount : " + inputTotalPrice + " less than invoice amount : " + invoiceTotalPrice);
     }
+
+    public static CustomException invoiceNotContainsPayment(String invoiceId, String paymentId) {
+        return new CustomException("Invoice id : " + invoiceId + " has not contains payment id : " + paymentId);
+    }
+
+    public static CustomException paymentIsAlreadyDeleted(String paymentId) {
+        return new CustomException("Payment id : " +paymentId + " is already deleted");
+    }
 }

@@ -185,6 +185,57 @@ class PaymentServiceTest {
         assertThrows(CustomException.class, () -> paymentServiceMock.makePayment(makePaymentInput));
     }
 
+    @DisplayName("deletePayment should return true when given paymentId is exist and payment isDeleted already false")
+    @Test
+    void testDeletePayment_success(){
+        String id = "test_id";
+        paymentMock.setPaymentType(PaymentTypeEnums.CASH);
+        String invoiceId = "test_invoice_id";
+        Invoice invoice = new Invoice();
+        invoice.setId("test_invoice_id");
+        invoice.setPrice(100.0);
+        invoice.setPayment(new HashMap<>());
+        invoice.getPayment().put(paymentMock.getPaymentType(),paymentMock.getPrice());
+
+
+
+        when(paymentRepositoryMock.findById(id)).thenReturn(Optional.ofNullable(paymentMock));
+        when(invoiceServiceMock.getInvoiceById(invoiceId)).thenReturn(invoice);
+
+        assertTrue(paymentServiceMock.deletePayment(id));;
+
+    }
+
+    @DisplayName("deletePayment should throw custom exception invoiceNotContainsPayment when given payment id is exist and payment isDeleted false but invoice payment list hasn't equal and record paymentType with price")
+    @Test
+    void testDeletePayment_invoiceNotContainsPayment(){
+        String id = "test_id";
+        paymentMock.setPaymentType(PaymentTypeEnums.CASH);
+        String invoiceId = "test_invoice_id";
+        Invoice invoice = new Invoice();
+        invoice.setId("test_invoice_id");
+        invoice.setPrice(100.0);
+        invoice.setPayment(new HashMap<>());
+        invoice.getPayment().put(PaymentTypeEnums.CASH,250.0);
+
+        when(paymentRepositoryMock.findById(id)).thenReturn(Optional.ofNullable(paymentMock));
+        when(invoiceServiceMock.getInvoiceById(invoiceId)).thenReturn(invoice);
+
+        assertThrows(CustomException.class, ()-> paymentServiceMock.deletePayment(id));
+    }
+
+    @DisplayName("deletePayment should throw custom exception paymentIsAlreadyDeleted when given id is exist but payment isDeleted already true")
+    @Test
+    void testDeletePayment_paymentIsAlreadyDeleted(){
+        String id = "test_id";
+        paymentMock.setDeleted(true);
+
+        when(paymentRepositoryMock.findById(id)).thenReturn(Optional.ofNullable(paymentMock));
+        when(invoiceServiceMock.getInvoiceById(anyString())).thenReturn(any(Invoice.class));
+
+        assertThrows(CustomException.class,()-> paymentServiceMock.deletePayment(id));
+    }
+
     @AfterEach
     void tearDown() {
     }
