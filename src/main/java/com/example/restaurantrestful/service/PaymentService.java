@@ -92,4 +92,29 @@ public class PaymentService {
         }
 
     }
+
+    @Transactional
+    public boolean deletePayment(String id){
+        Payment dbPayment = paymentRepository.findById(id).orElseThrow(CustomException::paymentNotFound);
+        Invoice dbInvoice = invoiceService.getInvoiceById(dbPayment.getInvoiceId());
+
+        if(!dbPayment.isDeleted()){
+            for(Map.Entry<PaymentTypeEnums , Double> payment : dbInvoice.getPayment().entrySet()){
+                if(payment.getKey().equals(dbPayment.getPaymentType()) && payment.getValue() == dbPayment.getPrice()){
+                    dbPayment.setDeleted(true);
+                    dbInvoice.getPayment().remove(payment);
+                    dbInvoice.setCompleted(false);
+                    dbInvoice.setUpdateDate(new Date());
+                    invoiceRepository.save(dbInvoice);
+                    paymentRepository.save(dbPayment);
+
+                }else{
+                    throw CustomException.invoiceNotContainsPayment(dbInvoice.getId(), dbPayment.getId());
+                }
+            }
+        }else{
+            throw CustomException.paymentIsAlreadyDeleted(dbPayment.getId());
+        }
+        return true;
+    }
 }
