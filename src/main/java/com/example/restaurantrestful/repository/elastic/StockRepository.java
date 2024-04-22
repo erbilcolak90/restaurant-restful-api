@@ -13,6 +13,7 @@ public interface StockRepository extends ElasticsearchRepository<Stock, String> 
     @Query("{\"bool\" : {\"must\" : [{\"match\": {\"ingredientId\": \"?0\"}}, {\"match\": {\"isDeleted\": \"false\"}}]}}")
     Page<Stock> findByIngredientIdAndIsDeletedFalse(String ingredientId, Pageable pageable);
 
+    @Query("{\"bool\" : {\"must\" : [{\"match\": {\"_id\": \"?0\"}}, {\"match\": {\"isDeleted\": \"false\"}}]}}")
     Optional<Stock> findByIdAndIsDeletedFalse(String id);
 
     @Query("{\"bool\": {\"must\": [{\"match\": {\"ingredientId\": \"?0\"}}, {\"term\": {\"isDeleted\": false}}], \"filter\": {\"range\": {\"expireDate\": {\"gte\": \"now\"}}}}, \"sort\": [{\"expireDate\": {\"order\": \"asc\"}}], \"size\": 1}")

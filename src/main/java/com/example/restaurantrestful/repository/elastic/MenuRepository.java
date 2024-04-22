@@ -11,6 +11,6 @@ public interface MenuRepository extends ElasticsearchRepository<Menu, String> {
     @Query("{\"bool\": {\"must\": {\"match\" : {\"name\": \"?0\"}}}}")
     Optional<Menu> findByName(String name);
 
-    @Query("{\"bool\": {\"must\": {\"match\": {\"id\": \"?0\"}, {\"match\": {\"isDeleted\": \"false\"}}}}")
+    @Query("{\"bool\": {\"must\": {\"match\": {\"_id\": \"?0\"}, {\"match\": {\"isDeleted\": \"false\"}}}}")
     Optional<Menu> findByIsDeletedFalse(String id);
 }

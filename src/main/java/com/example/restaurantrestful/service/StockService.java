@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.util.Date;
 
 @Service
@@ -56,13 +57,14 @@ public class StockService {
     @Transactional
     public StockPayload addIngredientToStock(AddIngredientToStockInput addIngredientToStockInput) {
         Ingredient dbIngredient = ingredientService.getIngredientById(addIngredientToStockInput.getIngredientId());
+        Date expireDate = Date.from(addIngredientToStockInput.getExpireDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         Stock stock = new Stock();
         stock.setIngredientId(dbIngredient.getId());
-        stock.setType(addIngredientToStockInput.getType().toString());
+        stock.setType(dbIngredient.getType().toString());
         stock.setUnit(addIngredientToStockInput.getUnit().toString());
         stock.setQuantity(addIngredientToStockInput.getQuantity());
-        stock.setExpireDate(addIngredientToStockInput.getExpireDate());
+        stock.setExpireDate(expireDate);
 
         Stock dbStock = stockRepository.save(stock);
         return StockPayload.convert(dbStock);
