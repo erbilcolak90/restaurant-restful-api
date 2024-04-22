@@ -36,13 +36,19 @@ public class RecipeService {
         return recipeRepository.findById(id).orElseThrow(CustomException::recipeNotFound);
     }
 
+    public Recipe getRecipeByName(String name) {
+        return recipeRepository.findByName(name.toLowerCase()).orElseThrow(CustomException::recipeNotFound);
+    }
+
+
     public List<Recipe> getRecipeByContainsIngredient(String ingredientId) {
         Ingredient dbIngredient = ingredientService.getIngredientById(ingredientId);
         return recipeRepository.findByIngredientId(dbIngredient.getId());
     }
 
-    public Recipe getRecipeByName(String name) {
-        return recipeRepository.findByName(name.toLowerCase()).orElseThrow(CustomException::recipeNotFound);
+    public List<String> getRecipeIdsByContainsIngredient(String ingredientId){
+        Ingredient dbIngredient = ingredientService.getIngredientById(ingredientId);
+        return recipeRepository.findRecipeIdsByIngredientId(dbIngredient.getId());
     }
 
     @Transactional
@@ -72,11 +78,6 @@ public class RecipeService {
         recipeRepository.save(dbRecipe);
 
         return dbRecipe;
-    }
-
-    public List<String> getRecipeIdsByContainsIngredient(String ingredientId){
-        Ingredient dbIngredient = ingredientService.getIngredientById(ingredientId);
-        return recipeRepository.findRecipeIdsByIngredientId(dbIngredient.getId());
     }
 
 }
