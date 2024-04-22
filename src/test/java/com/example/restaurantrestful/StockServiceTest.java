@@ -26,6 +26,8 @@ import org.springframework.data.domain.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -220,11 +222,13 @@ class StockServiceTest {
     @DisplayName("addIngredientToStock should return valid StockPayload when given AddIngredientToStock input")
     @Test
     void testAddIngredientToStock_success(){
-        AddIngredientToStockInput addIngredientToStockInput = new AddIngredientToStockInput("test_ingredient_id",IngredientTypeEnums.BAKERY,UnitTypeEnums.GR,100.0,new Date());
+        LocalDate expireDate =LocalDate.of(2024,5,12);
+        Date date = Date.from(expireDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        AddIngredientToStockInput addIngredientToStockInput = new AddIngredientToStockInput("test_ingredient_id",UnitTypeEnums.GR,100.0,expireDate);
         stockMock.setIngredientId(addIngredientToStockInput.getIngredientId());
-        stockMock.setType(addIngredientToStockInput.getType().toString());
+        stockMock.setType(stockMock.getType().toString());
         stockMock.setUnit(addIngredientToStockInput.getUnit().toString());
-        stockMock.setExpireDate(addIngredientToStockInput.getExpireDate());
+        stockMock.setExpireDate(date);
 
         when(ingredientServiceMock.getIngredientById(addIngredientToStockInput.getIngredientId())).thenReturn(ingredientMock);
         when(stockRepositoryMock.save(any(Stock.class))).thenReturn(stockMock);
@@ -232,7 +236,6 @@ class StockServiceTest {
         StockPayload result = stockServiceMock.addIngredientToStock(addIngredientToStockInput);
 
         assertEquals(addIngredientToStockInput.getIngredientId(),result.getIngredientId());
-        assertEquals(addIngredientToStockInput.getType().toString(),result.getType());
         assertEquals(addIngredientToStockInput.getUnit().toString(),result.getUnit());
 
     }
@@ -240,7 +243,9 @@ class StockServiceTest {
     @DisplayName("addIngredientToStock should throw ingredient not found exception when given ingredientId does not exist")
     @Test
     void testAddIngredientToStock_ingredientNotFound(){
-        AddIngredientToStockInput addIngredientToStockInput = new AddIngredientToStockInput("test_ingredient_id",IngredientTypeEnums.BAKERY,UnitTypeEnums.GR,100.0,new Date());
+        LocalDate expireDate =LocalDate.of(2024,5,12);
+
+        AddIngredientToStockInput addIngredientToStockInput = new AddIngredientToStockInput("test_ingredient_id",UnitTypeEnums.GR,100.0,expireDate);
 
         when(ingredientServiceMock.getIngredientById(addIngredientToStockInput.getIngredientId())).thenThrow(CustomException.ingredientNotFound());
 
