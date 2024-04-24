@@ -17,7 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StockService {
@@ -126,8 +129,15 @@ public class StockService {
     }
 
     public Stock  findNearestExpirationStockByItemId(String ingredientId) {
-        Stock dbStock = stockRepository.findNearestExpirationStockByItemId(ingredientId).orElseThrow(CustomException::stockNotFound);
+        List<Stock> stockList = stockRepository.findNearestExpirationStockByItemId(ingredientId);
 
-        return dbStock;
+        Optional<Stock> nearestExpireDateStock = stockList.stream().min(Comparator.comparing(Stock::getExpireDate));
+
+        if(nearestExpireDateStock.isPresent()){
+            Stock result = nearestExpireDateStock.orElseThrow(CustomException::stockNotFound);
+            return result;
+        }else{
+            throw CustomException.stockNotFound();
+        }
     }
 }

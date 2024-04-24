@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface StockRepository extends ElasticsearchRepository<Stock, String> {
@@ -16,6 +17,6 @@ public interface StockRepository extends ElasticsearchRepository<Stock, String> 
     @Query("{\"bool\" : {\"must\" : [{\"match\": {\"_id\": \"?0\"}}, {\"match\": {\"isDeleted\": \"false\"}}]}}")
     Optional<Stock> findByIdAndIsDeletedFalse(String id);
 
-    @Query("{\"bool\": {\"must\": [{\"match\": {\"ingredientId\": \"?0\"}}, {\"term\": {\"isDeleted\": false}}], \"filter\": {\"range\": {\"expireDate\": {\"gte\": \"now\"}}}}, \"sort\": [{\"expireDate\": {\"order\": \"asc\"}}], \"size\": 1}")
-    Optional<Stock> findNearestExpirationStockByItemId(String ingredientId);
+    @Query("{\"bool\": {\"must\": [{\"match\": {\"ingredientId\": \"?0\"}}, {\"match\": {\"isDeleted\": \"false\"}}]}}")
+    List<Stock> findNearestExpirationStockByItemId(String ingredientId);
 }
