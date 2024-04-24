@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RecipeService {
@@ -48,7 +49,11 @@ public class RecipeService {
 
     public List<String> getRecipeIdsByContainsIngredient(String ingredientId){
         Ingredient dbIngredient = ingredientService.getIngredientById(ingredientId);
-        return recipeRepository.findRecipeIdsByIngredientId(dbIngredient.getId());
+        List<Recipe> recipeList =  recipeRepository.findByIngredientId(dbIngredient.getId());
+
+        List<String> recipeIds = recipeList.stream().map(Recipe::getId).collect(Collectors.toList());
+
+        return recipeIds;
     }
 
     @Transactional

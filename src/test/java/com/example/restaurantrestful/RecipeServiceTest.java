@@ -211,12 +211,15 @@ class RecipeServiceTest {
     @Test
     void testGetRecipeIdsByContainsIngredient_success(){
         String test_ingredient_id = "test_ingredient_id";
+
+        List<Recipe> recipeList = new ArrayList<>();
+        recipeList.add(recipeMock);
         List<String> recipeIdsList= new ArrayList<>();
         recipeIdsList.add(recipeMock.getId());
         Ingredient dbIngredient = new Ingredient("test_ingredient_id_1", "test_name", IngredientTypeEnums.BAKERY, UnitTypeEnums.KG);
 
         when(ingredientServiceMock.getIngredientById(test_ingredient_id)).thenReturn(dbIngredient);
-        when(recipeRepositoryMock.findRecipeIdsByIngredientId(dbIngredient.getId())).thenReturn(recipeIdsList);
+        when(recipeRepositoryMock.findByIngredientId(dbIngredient.getId())).thenReturn(recipeList);
 
         List<String> result = recipeServiceMock.getRecipeIdsByContainsIngredient(test_ingredient_id);
 

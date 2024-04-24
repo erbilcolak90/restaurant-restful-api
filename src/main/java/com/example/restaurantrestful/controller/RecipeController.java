@@ -28,8 +28,8 @@ public class RecipeController {
         return ResponseEntity.ok(recipeService.getRecipeByContainsIngredient(ingredientId));
     }
 
-    @GetMapping("getRecipeIdsByContainsIngredient")
-    public ResponseEntity<List<String>> getRecipeIdsByContainsIngredient(String ingredientId){
+    @GetMapping("/getRecipeIdsByContainsIngredient")
+    public ResponseEntity<List<String>> getRecipeIdsByContainsIngredient(@RequestParam String ingredientId){
         return ResponseEntity.ok(recipeService.getRecipeIdsByContainsIngredient(ingredientId));
     }
 
