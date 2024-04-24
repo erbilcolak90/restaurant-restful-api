@@ -297,8 +297,10 @@ class StockServiceTest {
     @Test
     void testFindNearestExpirationStockByItemId_success(){
         String test_id = "test_id";
+        List<Stock> stockList = new ArrayList<>();
+        stockList.add(stockMock);
 
-        when(stockRepositoryMock.findNearestExpirationStockByItemId(test_id)).thenReturn(Optional.ofNullable(stockMock));
+        when(stockRepositoryMock.findNearestExpirationStockByItemId(test_id)).thenReturn(stockList);
 
         Stock result = stockServiceMock.findNearestExpirationStockByItemId(test_id);
 
@@ -309,8 +311,8 @@ class StockServiceTest {
     @Test
     void testFindNearestExpirationStockByItemId_stockNotFound(){
         String test_id = "test_id";
-
-        when(stockRepositoryMock.findNearestExpirationStockByItemId(test_id)).thenReturn(Optional.empty());
+        List<Stock> stockList = new ArrayList<>();
+        when(stockRepositoryMock.findNearestExpirationStockByItemId(test_id)).thenReturn(stockList);
 
         assertThrows(CustomException.class,()->stockServiceMock.findNearestExpirationStockByItemId(test_id));
 
